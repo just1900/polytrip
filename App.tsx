@@ -116,11 +116,13 @@ export default function App() {
   };
 
   const handleRestartGame = () => {
-      // Direct reset without confirmation to ensure it works on all devices/browsers
+      // Clean reset logic
       setLastDiceRoll(null);
       setStoryText(null);
       setFlyingAnimation(null);
       audioManager.stopBGM();
+      
+      // We set phase directly. The component will re-render showing the Start Page.
       setPhase(GamePhase.DESIGN);
   };
 
@@ -302,7 +304,7 @@ export default function App() {
 
   if (phase === GamePhase.DESIGN) {
     return (
-      <div className="min-h-screen bg-sky-50 text-slate-800 flex flex-col items-center justify-center p-8 font-sans selection:bg-pink-200">
+      <div className="h-screen bg-sky-50 text-slate-800 flex flex-col items-center justify-center p-8 font-sans selection:bg-pink-200">
         <div className="max-w-4xl w-full space-y-12 text-center">
             <h1 className="text-8xl font-black text-transparent bg-clip-text bg-gradient-to-r from-pink-400 via-purple-400 to-sky-400 tracking-tighter drop-shadow-sm filter" style={{ fontFamily: 'Nunito' }}>
               PolyTrip
@@ -326,7 +328,7 @@ export default function App() {
 
   if (phase === GamePhase.SETUP) {
     return (
-      <div className="min-h-screen bg-sky-50 text-slate-800 flex flex-col items-center justify-center p-4 font-sans">
+      <div className="h-screen bg-sky-50 text-slate-800 flex flex-col items-center justify-center p-4 font-sans">
          <div className="bg-white p-8 rounded-[3rem] shadow-xl border-b-[16px] border-slate-200 max-w-4xl w-full">
             <h2 className="text-4xl font-black text-center mb-6 text-slate-700">Setup Your Game</h2>
             
@@ -440,9 +442,9 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen bg-sky-50 text-slate-800 font-sans flex flex-col">
+    <div className="h-screen bg-sky-50 text-slate-800 font-sans flex flex-col">
       {/* Header */}
-      <header className="px-6 py-4 bg-white/80 backdrop-blur-md border-b-4 border-sky-100 flex justify-between items-center sticky top-0 z-50">
+      <header className="px-6 py-4 bg-white/80 backdrop-blur-md border-b-4 border-sky-100 flex justify-between items-center sticky top-0 z-50 flex-none">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 bg-gradient-to-br from-pink-400 to-purple-400 rounded-2xl shadow-lg border-b-4 border-purple-600 flex items-center justify-center transform -rotate-6">
              <svg viewBox="-50 -50 100 100" className="w-full h-full overflow-visible">
@@ -461,49 +463,57 @@ export default function App() {
            <button onClick={toggleMute} className="text-slate-400 hover:text-sky-500 transition-colors font-bold uppercase tracking-wider text-xs bg-slate-100 px-3 py-1 rounded-full">
               {isMuted ? '🔇 Muted' : '🔊 Sound On'}
            </button>
-           <div className="bg-white px-6 py-2 rounded-full border-b-4 border-slate-200 font-black text-sm text-slate-600">
-             Turn {gameState.turnCount} • <span className="text-sky-500">{tiles[activePlayer.position].zone}</span>
-           </div>
+           {/* Only show turn info if we have an active player (Game Started) */}
+           {activePlayer && tiles.length > 0 && (
+            <div className="hidden md:block bg-white px-6 py-2 rounded-full border-b-4 border-slate-200 font-black text-sm text-slate-600">
+                Turn {gameState.turnCount} • <span className="text-sky-500">{tiles[activePlayer.position]?.zone}</span>
+            </div>
+           )}
         </div>
       </header>
 
       {/* Main Game Area */}
-      <main className="flex-1 flex flex-col relative overflow-hidden">
-        <GameBoard 
-            tiles={tiles} 
-            players={gameState.players} 
-            activePlayerId={activePlayer.id} 
-            theme={selectedTheme}
-            flyingAnimation={flyingAnimation}
-        />
-        
-        {/* Story Overlay - 3D Card Style */}
-        {storyText && (
-          <div className="absolute top-32 left-1/2 -translate-x-1/2 w-full max-w-xl px-4 z-40 pointer-events-none">
-             <div className="bg-white/95 backdrop-blur border-b-[12px] border-r-8 border-sky-200 p-8 rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] text-center animate-in fade-in slide-in-from-top-6 transform rotate-1">
-                <p className="text-2xl text-slate-700 font-black leading-snug tracking-tight" style={{ fontFamily: 'Nunito' }}>{storyText}</p>
-                <div className="absolute -top-6 -right-6 text-6xl rotate-12 filter drop-shadow-md">✨</div>
-             </div>
-          </div>
-        )}
+      <main className="flex-1 flex flex-col md:flex-row overflow-hidden bg-sky-900/5 relative">
+        <div className="flex-1 relative order-1 md:order-1 min-w-0 min-h-0">
+            <GameBoard 
+                tiles={tiles} 
+                players={gameState.players} 
+                activePlayerId={activePlayer?.id || 0} 
+                theme={selectedTheme}
+                flyingAnimation={flyingAnimation}
+            />
+            
+            {/* Story Overlay - 3D Card Style, now positioned relative to game area */}
+            {storyText && (
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl px-4 z-40 pointer-events-none">
+                <div className="bg-white/95 backdrop-blur border-b-[12px] border-r-8 border-sky-200 p-8 rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] text-center animate-in fade-in slide-in-from-top-6 transform rotate-1">
+                    <p className="text-2xl text-slate-700 font-black leading-snug tracking-tight" style={{ fontFamily: 'Nunito' }}>{storyText}</p>
+                    <div className="absolute -top-6 -right-6 text-6xl rotate-12 filter drop-shadow-md">✨</div>
+                </div>
+            </div>
+            )}
+        </div>
 
-        {/* Controls Section */}
-        <div className="flex-1 bg-sky-50 p-6 flex flex-col md:flex-row gap-8 border-t-8 border-sky-100">
+        {/* Sidebar Controls Section */}
+        <div className="order-2 md:order-2 flex-shrink-0 z-30
+                        w-full h-[280px] md:h-full md:w-[380px] 
+                        bg-white p-4 md:p-6 flex flex-row md:flex-col gap-4 md:gap-6 
+                        border-t-4 md:border-t-0 md:border-l-4 border-slate-100 shadow-2xl overflow-hidden md:overflow-y-auto">
           
           {/* Active Player Status */}
-          <div className="flex-1 flex flex-col items-center justify-center gap-8 bg-white rounded-[2.5rem] p-8 border-b-[12px] border-slate-200 relative overflow-hidden shadow-sm">
+          <div className="flex-1 md:flex-none flex flex-col items-center justify-center gap-4 bg-slate-50 rounded-[2rem] p-4 border-2 border-slate-100 relative overflow-hidden shadow-sm">
              
             {phase === GamePhase.GAME_OVER ? (
-               <div className="text-center z-10">
-                  <h2 className="text-7xl font-black text-yellow-400 mb-6 drop-shadow-[0_4px_0_rgba(0,0,0,0.1)] text-stroke animate-bounce">YOU WIN!</h2>
-                  <button onClick={handlePlayAgain} className="px-12 py-5 bg-sky-500 text-white font-black text-xl rounded-3xl shadow-xl border-b-8 border-sky-700 active:border-b-0 active:translate-y-2 transition-all">Play Again</button>
+               <div className="text-center z-10 scale-75 md:scale-100">
+                  <h2 className="text-4xl md:text-5xl font-black text-yellow-400 mb-4 drop-shadow-[0_4px_0_rgba(0,0,0,0.1)] text-stroke animate-bounce">YOU WIN!</h2>
+                  <button onClick={handlePlayAgain} className="px-6 py-3 bg-sky-500 text-white font-black text-lg rounded-2xl shadow-xl border-b-4 border-sky-700 active:border-b-0 active:translate-y-1 transition-all">Play Again</button>
                </div>
             ) : (
               <>
-                 {/* Turn Indicator */}
-                 <div className="absolute top-6 left-6 flex gap-3 z-10">
+                 {/* Turn Indicator - Player List */}
+                 <div className="flex flex-wrap gap-2 justify-center z-10 w-full">
                     {gameState.players.map(p => (
-                      <div key={p.id} className={`px-4 py-2 rounded-2xl text-xs font-black transition-all border-b-4 ${activePlayer.id === p.id ? 'bg-sky-500 border-sky-700 text-white scale-110 -rotate-2 shadow-lg' : 'bg-slate-100 border-slate-200 text-slate-400'}`}>
+                      <div key={p.id} className={`px-2 py-1 rounded-lg text-[10px] font-black transition-all border-b-2 ${activePlayer?.id === p.id ? 'bg-sky-500 border-sky-700 text-white scale-105 shadow-md' : 'bg-white border-slate-200 text-slate-400'}`}>
                         {p.name}
                       </div>
                     ))}
@@ -512,28 +522,30 @@ export default function App() {
                  {/* DICE BUTTON - 3D Cube Style */}
                  <button
                     onClick={handleRollDice}
-                    disabled={gameState.isMoving || processingRef.current || !!flyingAnimation}
-                    className={`relative w-48 h-48 rounded-[2.5rem] flex flex-col items-center justify-center transition-all transform active:scale-95 group border-b-[16px] border-r-[8px] ${
-                       (gameState.isMoving || processingRef.current || !!flyingAnimation)
-                       ? 'bg-slate-100 border-slate-300 text-slate-300 cursor-not-allowed translate-y-[16px] border-b-0 shadow-inner' 
-                       : 'bg-white border-slate-200 hover:bg-sky-50 hover:border-sky-200 hover:-translate-y-1 shadow-xl active:translate-y-[16px] active:border-b-0 active:shadow-none'
+                    disabled={gameState.isMoving || processingRef.current || !!flyingAnimation || !activePlayer}
+                    className={`relative w-28 h-28 md:w-40 md:h-40 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center transition-all transform active:scale-95 group border-b-[8px] md:border-b-[12px] border-r-[4px] md:border-r-[6px] ${
+                       (gameState.isMoving || processingRef.current || !!flyingAnimation || !activePlayer)
+                       ? 'bg-slate-100 border-slate-300 text-slate-300 cursor-not-allowed translate-y-[8px] md:translate-y-[12px] border-b-0 shadow-inner' 
+                       : 'bg-white border-slate-200 hover:bg-sky-50 hover:border-sky-200 hover:-translate-y-1 shadow-xl active:translate-y-[8px] md:active:translate-y-[12px] active:border-b-0 active:shadow-none'
                     }`}
                   >
                     {/* Decorative Dice Dots (Inset) */}
-                    <div className="absolute top-5 left-5 w-5 h-5 bg-slate-100 rounded-full shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"></div>
-                    <div className="absolute top-5 right-5 w-5 h-5 bg-slate-100 rounded-full shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"></div>
-                    <div className="absolute bottom-5 left-5 w-5 h-5 bg-slate-100 rounded-full shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"></div>
-                    <div className="absolute bottom-5 right-5 w-5 h-5 bg-slate-100 rounded-full shadow-[inset_0_2px_4px_rgba(0,0,0,0.1)]"></div>
+                    <div className="absolute top-3 left-3 w-3 h-3 bg-slate-100 rounded-full shadow-inner"></div>
+                    <div className="absolute top-3 right-3 w-3 h-3 bg-slate-100 rounded-full shadow-inner"></div>
+                    <div className="absolute bottom-3 left-3 w-3 h-3 bg-slate-100 rounded-full shadow-inner"></div>
+                    <div className="absolute bottom-3 right-3 w-3 h-3 bg-slate-100 rounded-full shadow-inner"></div>
 
-                    <span className="text-6xl font-black text-slate-800 z-10 drop-shadow-sm group-hover:scale-110 transition-transform">{gameState.isMoving ? '...' : (flyingAnimation ? '✈️' : 'ROLL')}</span>
-                    <span className="text-xs text-slate-400 mt-3 font-black uppercase tracking-widest bg-slate-100 px-4 py-1.5 rounded-full flex items-center gap-2">
-                      <div className="w-3 h-3 rounded-full" style={{background: activePlayer.color}}></div>
-                      {activePlayer.name}
-                    </span>
+                    <span className="text-4xl md:text-5xl font-black text-slate-800 z-10 drop-shadow-sm group-hover:scale-110 transition-transform">{gameState.isMoving ? '...' : (flyingAnimation ? '✈️' : 'ROLL')}</span>
+                    {activePlayer && (
+                        <span className="text-[9px] md:text-[10px] text-slate-400 mt-1 md:mt-2 font-black uppercase tracking-widest bg-slate-100 px-2 md:px-3 py-0.5 md:py-1 rounded-full flex items-center gap-1 md:gap-2">
+                        <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full" style={{background: activePlayer.color}}></div>
+                        {activePlayer.name}
+                        </span>
+                    )}
                  </button>
 
                  {lastDiceRoll && !gameState.isMoving && !processingRef.current && !flyingAnimation && (
-                     <div className="absolute top-1/2 right-8 -translate-y-1/2 w-16 h-16 bg-yellow-400 text-white rounded-2xl flex items-center justify-center font-black text-3xl shadow-[0_10px_20px_rgba(250,204,21,0.4)] border-b-8 border-yellow-600 rotate-12 animate-in zoom-in spin-in-12 z-20">
+                     <div className="absolute top-1/2 right-2 md:right-4 -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 bg-yellow-400 text-white rounded-xl md:rounded-2xl flex items-center justify-center font-black text-2xl md:text-3xl shadow-[0_5px_15px_rgba(250,204,21,0.4)] border-b-4 md:border-b-8 border-yellow-600 rotate-12 animate-in zoom-in spin-in-12 z-20">
                        {lastDiceRoll}
                      </div>
                   )}
@@ -542,13 +554,13 @@ export default function App() {
           </div>
 
           {/* Log */}
-          <div className="w-full md:w-[400px] bg-white rounded-[2.5rem] border-b-[12px] border-slate-200 flex flex-col overflow-hidden shadow-sm h-[320px]">
-             <div className="bg-slate-50 p-5 border-b-2 border-slate-100">
-                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Adventure Log</h3>
+          <div className="flex-1 bg-slate-50 rounded-[1.5rem] md:rounded-[2rem] border-2 border-slate-100 flex flex-col overflow-hidden shadow-sm">
+             <div className="bg-slate-100/50 p-2 md:p-4 border-b border-slate-200">
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-center">Adventure Log</h3>
              </div>
-             <div className="flex-1 overflow-y-auto space-y-3 p-5 no-scrollbar font-sans text-sm font-bold">
+             <div className="flex-1 overflow-y-auto space-y-2 p-2 md:p-4 no-scrollbar font-sans text-xs font-bold">
                {gameState.history.slice().reverse().map((entry, idx) => (
-                 <div key={idx} className="p-4 bg-slate-50 rounded-2xl text-slate-600 border-l-4 border-sky-200">
+                 <div key={idx} className="p-2 md:p-3 bg-white rounded-xl text-slate-600 border-l-4 border-sky-200 shadow-sm">
                    {entry}
                  </div>
                ))}

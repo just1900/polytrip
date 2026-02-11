@@ -383,6 +383,9 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
   const [hoveredTile, setHoveredTile] = useState<Tile | null>(null);
   const [zoom, setZoom] = useState(1.0);
   
+  // Track initial mount to snap camera to start
+  const isInitialMount = useRef(true);
+  
   // Drag State
   const [isDragging, setIsDragging] = useState(false);
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
@@ -442,29 +445,37 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
         // If flying, target the midpoint of flight
         let targetX = 0;
         let targetY = 0;
+        let hasTarget = false;
 
         if (flyingAnimation) {
             const start = tiles[flyingAnimation.startTileId];
             const end = tiles[flyingAnimation.endTileId];
             targetX = (start.x + end.x) / 2;
             targetY = (start.y + end.y) / 2;
+            hasTarget = true;
         } else {
             const activePlayer = players.find(p => p.id === activePlayerId);
             if (activePlayer) {
                 const t = tiles[activePlayer.position];
-                targetX = t.x;
-                targetY = t.y;
+                if (t) {
+                    targetX = t.x;
+                    targetY = t.y;
+                    hasTarget = true;
+                }
             }
         }
 
-        if (targetX !== 0 && targetY !== 0) {
+        if (hasTarget) {
             const containerW = scrollContainerRef.current.clientWidth;
             const containerH = scrollContainerRef.current.clientHeight;
             
             const targetLeft = ((targetX + offsetX) * zoom) - containerW / 2;
             const targetTop = ((targetY + offsetY) * zoom) - containerH / 2;
             
-            scrollContainerRef.current.scrollTo({ left: targetLeft, top: targetTop, behavior: 'smooth' });
+            const behavior = isInitialMount.current ? 'auto' : 'smooth';
+            scrollContainerRef.current.scrollTo({ left: targetLeft, top: targetTop, behavior });
+            
+            if (isInitialMount.current) isInitialMount.current = false;
         }
     }
   }, [activePlayerId, zoom, flyingAnimation]); 
@@ -499,7 +510,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
 
   return (
     <div 
-        className="relative w-full h-[600px] border-y-8 border-sky-300 shadow-inner font-sans select-none"
+        className="relative w-full h-full shadow-inner font-sans select-none"
         style={{ background: getBgGradient() }}
     >
         {/* Zoom Controls */}

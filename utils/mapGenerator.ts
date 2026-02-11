@@ -77,10 +77,10 @@ export const generateMap = (theme: ThemeType = 'INTERSTELLAR'): Tile[] => {
         } else {
            const rand = Math.random();
            // Reduced probabilities for negative events
-           // Boost: ~8%, Penalty: ~4%, Freeze: ~3%
+           // Boost: ~8%, Penalty: ~2%, Freeze: ~2%
            if (rand < 0.08) { type = TileType.BOOST; description = "Boost!"; }
-           else if (rand < 0.12) { type = TileType.PENALTY; description = "Oops!"; }
-           else if (rand < 0.15) { type = TileType.FREEZE; description = "Sleep"; }
+           else if (rand < 0.10) { type = TileType.PENALTY; description = "Oops!"; }
+           else if (rand < 0.12) { type = TileType.FREEZE; description = "Sleep"; }
         }
     }
     if (!description) description = `${zoneName}`;
