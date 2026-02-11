@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useMemo, useState } from 'react';
-import { Tile, TileType, ZoneType, Player, Decoration } from '../types';
+import { Tile, TileType, Player, Decoration, ThemeType } from '../types';
 import { CarAvatar } from './CarAvatar';
 
 interface GameBoardProps {
   tiles: Tile[];
   players: Player[];
   activePlayerId: number;
+  theme: ThemeType;
   flyingAnimation?: {
       playerId: number;
       startTileId: number;
@@ -22,12 +23,10 @@ const FlightOverlay = ({ start, end, players, playerId }: { start: Tile, end: Ti
     const dx = end.x - start.x;
     const dy = end.y - start.y;
     const midX = (start.x + end.x) / 2;
-    // Arch the flight path upwards significantly (-600px for height)
     const midY = (start.y + end.y) / 2 - 600; 
 
     return (
         <g className="pointer-events-none" style={{ zIndex: 9999 }}>
-            {/* Plane Shadow on Ground */}
             <circle r="40" fill="rgba(0,0,0,0.3)" filter="blur(10px)">
                 <animateMotion 
                     dur="3s" 
@@ -40,7 +39,6 @@ const FlightOverlay = ({ start, end, players, playerId }: { start: Tile, end: Ti
                 />
             </circle>
 
-            {/* The Plane Group */}
             <g>
                 <animateMotion 
                     dur="3s" 
@@ -54,21 +52,15 @@ const FlightOverlay = ({ start, end, players, playerId }: { start: Tile, end: Ti
                     keySplines="0.45 0 0.55 1" 
                 />
                 
-                {/* Plane Graphic */}
                 <g transform="rotate(90) scale(3)">
-                    {/* Fuselage */}
                     <path d="M-10 0 L-5 -30 L5 -30 L10 0 L0 10 Z" fill="white" stroke="#e2e8f0" strokeWidth="1" />
-                    {/* Wings */}
                     <path d="M-30 -10 L0 -5 L30 -10 L0 5 Z" fill="#cbd5e1" stroke="white" />
-                    {/* Tail */}
                     <path d="M-10 -25 L0 -35 L10 -25 Z" fill="#ef4444" />
                     
-                    {/* Player Sitting on Top (Visible/Comical) */}
                     <g transform="translate(0, -10) scale(0.5) rotate(-90)">
                         <CarAvatar character={player.character} color={player.color} />
                     </g>
                     
-                    {/* Jet Trail Particles (CSS Animation) */}
                     <circle cx="-5" cy="-30" r="2" fill="white" opacity="0.8">
                          <animate attributeName="cy" values="-30;-50" dur="0.5s" repeatCount="indefinite" />
                          <animate attributeName="opacity" values="0.8;0" dur="0.5s" repeatCount="indefinite" />
@@ -84,21 +76,38 @@ const FlightOverlay = ({ start, end, players, playerId }: { start: Tile, end: Ti
 };
 
 // Isometric Graphics Helpers
-const TileBase = ({ tile, isHovered }: { tile: Tile, isHovered: boolean }) => {
-    // Colors based on Zone
+const TileBase = ({ tile, isHovered, theme }: { tile: Tile, isHovered: boolean, theme: ThemeType }) => {
+    // Determine colors based on Theme and "Zone" (segment of the map)
     let topColor = "#e2e8f0";
     let sideColor = "#94a3b8";
     
-    if (tile.zone === ZoneType.CITY) { topColor = "#fecdd3"; sideColor = "#fda4af"; } // Pinkish
-    if (tile.zone === ZoneType.TUNNEL) { topColor = "#c4b5fd"; sideColor = "#a78bfa"; } // Purple
-    if (tile.zone === ZoneType.MOUNTAIN) { topColor = "#bae6fd"; sideColor = "#7dd3fc"; } // Ice Blue
-    if (tile.zone === ZoneType.BRIDGE) { topColor = "#fde047"; sideColor = "#facc15"; } // Yellow/Wood
+    if (theme === 'INTERSTELLAR') {
+        // Space Theme Palette
+        topColor = "#312e81"; sideColor = "#1e1b4b"; // Deep Blue
+        if (tile.zone.includes('Asteroid')) { topColor = "#475569"; sideColor = "#334155"; }
+        if (tile.zone.includes('Black')) { topColor = "#0f172a"; sideColor = "#020617"; }
+        if (tile.zone.includes('Alien')) { topColor = "#a855f7"; sideColor = "#7e22ce"; }
+    } else if (theme === 'CYBERPUNK') {
+        // Cyber Theme Palette
+        topColor = "#27272a"; sideColor = "#18181b"; // Asphalt
+        if (tile.zone.includes('Slums')) { topColor = "#52525b"; sideColor = "#3f3f46"; }
+        if (tile.zone.includes('Center')) { topColor = "#c026d3"; sideColor = "#a21caf"; } // Neon Purple
+        if (tile.zone.includes('Cloud')) { topColor = "#06b6d4"; sideColor = "#0891b2"; } // Neon Cyan
+    } else if (theme === 'CANDY') {
+        // Candy Theme Palette
+        topColor = "#fcd34d"; sideColor = "#f59e0b"; // Cookie dough
+        if (tile.zone.includes('Choco')) { topColor = "#78350f"; sideColor = "#451a03"; } // Chocolate
+        if (tile.zone.includes('Rainbow')) { topColor = "#fca5a5"; sideColor = "#ef4444"; } // Pink
+    } else if (theme === 'OCEAN') {
+        // Ocean Theme Palette
+        topColor = "#67e8f9"; sideColor = "#06b6d4"; // Shallow Cyan
+        if (tile.zone.includes('Trench')) { topColor = "#1e3a8a"; sideColor = "#172554"; } // Deep Blue
+        if (tile.zone.includes('Atlantis')) { topColor = "#ccfbf1"; sideColor = "#99f6e4"; } // Glowing Teal
+    }
 
     if (tile.type === TileType.STORY) { topColor = "#fff"; sideColor = "#cbd5e1"; } 
     if (tile.type === TileType.SHORTCUT) { topColor = "#d8b4fe"; sideColor = "#c084fc"; } 
-    
-    // Plane Tile Styles
-    if (tile.type === TileType.PLANE) { topColor = "#1e293b"; sideColor = "#0f172a"; } // Dark Tarmac
+    if (tile.type === TileType.PLANE) { topColor = "#1e293b"; sideColor = "#0f172a"; }
 
     const transform = isHovered ? "translate(0, -6)" : "translate(0, 0)";
 
@@ -106,6 +115,38 @@ const TileBase = ({ tile, isHovered }: { tile: Tile, isHovered: boolean }) => {
     const RX = 42; 
     const RY = 25; 
     const HEIGHT = 20;
+
+    // --- ICONS BASED ON THEME ---
+    let icon = "";
+    if (tile.type === TileType.BOOST) {
+        if (theme === 'INTERSTELLAR') icon = "🚀"; // Gravity Slingshot
+        else if (theme === 'CYBERPUNK') icon = "⚡"; // Nitro
+        else if (theme === 'CANDY') icon = "🍬"; // Sugar Rush
+        else if (theme === 'OCEAN') icon = "🌊"; // Current
+        else icon = "🚀";
+    }
+    else if (tile.type === TileType.PENALTY) {
+        if (theme === 'INTERSTELLAR') icon = "☄️"; // Meteor
+        else if (theme === 'CYBERPUNK') icon = "👾"; // Glitch
+        else if (theme === 'CANDY') icon = "🍫"; // Sticky Choco
+        else if (theme === 'OCEAN') icon = "⚓"; // Anchor
+        else icon = "🍌";
+    }
+    else if (tile.type === TileType.FREEZE) {
+        if (theme === 'INTERSTELLAR') icon = "🕳️"; // Blackhole
+        else if (theme === 'CYBERPUNK') icon = "⛔"; // Crash
+        else if (theme === 'CANDY') icon = "🍭"; // Sticky
+        else if (theme === 'OCEAN') icon = "🐙"; // Octopus
+        else icon = "💤";
+    }
+    else if (tile.type === TileType.STORY) icon = "✨";
+    else if (tile.type === TileType.SHORTCUT) {
+        if (theme === 'INTERSTELLAR') icon = "🛸";
+        else if (theme === 'CYBERPUNK') icon = "📡";
+        else if (theme === 'CANDY') icon = "🌈";
+        else if (theme === 'OCEAN') icon = "🐢";
+        else icon = "🪜";
+    }
 
     return (
         <g className="transition-transform duration-300 ease-out" style={{ transform }}>
@@ -116,15 +157,22 @@ const TileBase = ({ tile, isHovered }: { tile: Tile, isHovered: boolean }) => {
             <path d={`M-${RX} 0 L-${RX} ${HEIGHT} Q0 ${RY + HEIGHT + 6} ${RX} ${HEIGHT} L${RX} 0 Q0 ${RY + 6} -${RX} 0 Z`} fill={sideColor} />
             
             {/* Block Top */}
-            <ellipse cx="0" cy="0" rx={RX} ry={RY} fill={topColor} stroke="white" strokeWidth="2.5" />
+            <ellipse cx="0" cy="0" rx={RX} ry={RY} fill={topColor} stroke="white" strokeWidth="2" />
             
             {/* Inner Ring / Decor */}
             <ellipse cx="0" cy="0" rx={RX - 8} ry={RY - 6} fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
+
+            {/* Specks for Space/Ocean */}
+            {(theme === 'INTERSTELLAR' || theme === 'OCEAN') && tile.type === TileType.NORMAL && (
+                <g opacity="0.3">
+                    <circle cx="-20" cy="-10" r="1.5" fill="white" />
+                    <circle cx="20" cy="5" r="1" fill="white" />
+                </g>
+            )}
             
             {/* Special Visuals */}
             {tile.type === TileType.PLANE && (
                 <g>
-                    {/* Runway Markings */}
                     <path d="M-20 -10 L-20 10 M0 -10 L0 10 M20 -10 L20 10" stroke="yellow" strokeWidth="3" strokeDasharray="6 3" />
                     <text textAnchor="middle" y="5" fontSize="24">✈️</text>
                 </g>
@@ -132,11 +180,9 @@ const TileBase = ({ tile, isHovered }: { tile: Tile, isHovered: boolean }) => {
             
             {/* Icon/Text */}
             <g transform="translate(0, -3)">
-                {tile.type === TileType.BOOST && <text textAnchor="middle" y="7" fontSize="20" filter="drop-shadow(0 2px 0 rgba(0,0,0,0.1))">🚀</text>}
-                {tile.type === TileType.PENALTY && <text textAnchor="middle" y="7" fontSize="20" filter="drop-shadow(0 2px 0 rgba(0,0,0,0.1))">🍌</text>}
-                {tile.type === TileType.FREEZE && <text textAnchor="middle" y="7" fontSize="20" filter="drop-shadow(0 2px 0 rgba(0,0,0,0.1))">💤</text>}
-                {tile.type === TileType.STORY && <text textAnchor="middle" y="7" fontSize="20" filter="drop-shadow(0 2px 0 rgba(0,0,0,0.1))">✨</text>}
-                {tile.type === TileType.SHORTCUT && <text textAnchor="middle" y="7" fontSize="20" filter="drop-shadow(0 2px 0 rgba(0,0,0,0.1))">🪜</text>}
+                {/* Increased fontSize from 20 to 32 and adjusted y position */}
+                {icon && <text textAnchor="middle" y="10" fontSize="32" filter="drop-shadow(0 2px 0 rgba(0,0,0,0.2))">{icon}</text>}
+                
                 {tile.type === TileType.NORMAL && (
                     <text textAnchor="middle" y="5" fill="rgba(0,0,0,0.2)" fontSize="11" fontWeight="900">{tile.id}</text>
                 )}
@@ -146,83 +192,180 @@ const TileBase = ({ tile, isHovered }: { tile: Tile, isHovered: boolean }) => {
 };
 
 const DecorationObj: React.FC<{ deco: Decoration }> = ({ deco }) => {
-    // Significantly increased scale for visibility and "pop"
     const s = deco.scale * 1.2; 
     const color = deco.color || "#78350f";
     
-    if (deco.type === 'TREE') {
+    // --- SPACE DECORATIONS ---
+    if (deco.type === 'ROCKET') {
         return (
-            <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
-                <ellipse cx="0" cy="10" rx="20" ry="8" fill="rgba(0,0,0,0.2)" />
-                <path d="M-6 0 L-6 -12 L6 -12 L6 0 Z" fill="#78350f" /> 
-                <circle cx="0" cy="-30" r="22" fill="#4ade80" />
-                <circle cx="-12" cy="-22" r="16" fill="#22c55e" />
-                <circle cx="12" cy="-22" r="16" fill="#16a34a" />
-                {/* Highlights */}
-                <circle cx="-8" cy="-36" r="4" fill="white" opacity="0.3" />
+            <g transform={`translate(${deco.x}, ${deco.y - 20}) scale(${s}) rotate(-15)`}>
+                <path d="M-10 0 L-10 -30 Q0 -45 10 -30 L10 0 Z" fill="#e2e8f0" stroke="#64748b" strokeWidth="1" />
+                <path d="M-10 0 L-15 10 L-10 -5 Z" fill="#ef4444" />
+                <path d="M10 0 L15 10 L10 -5 Z" fill="#ef4444" />
+                <circle cx="0" cy="-20" r="5" fill="#38bdf8" stroke="#0ea5e9" strokeWidth="2" />
+                <path d="M-5 0 Q0 15 5 0 Z" fill="#f59e0b" className="animate-pulse" />
             </g>
         );
     }
-    if (deco.type === 'HOUSE') {
-         const roofColor = deco.color || "#ef4444";
-         return (
-            <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
-                 <path d="M-22 0 L-22 -28 L22 -28 L22 0 Z" fill="#fca5a5" />
-                 {/* 3D Roof */}
-                 <path d="M-28 -28 L0 -55 L28 -28 Z" fill={roofColor} stroke="rgba(0,0,0,0.1)" strokeWidth="2" />
-                 <path d="M-28 -28 L0 -55 L0 -28 Z" fill="rgba(0,0,0,0.1)" />
-                 
-                 <rect x="-8" y="-12" width="16" height="12" fill="#78350f" rx="2" />
-                 <circle cx="0" cy="-40" r="6" fill="#fff" opacity="0.8"/>
+    if (deco.type === 'PLANET') {
+        const pColor = deco.color || "#a855f7";
+        return (
+            <g transform={`translate(${deco.x}, ${deco.y - 40}) scale(${s})`}>
+                <ellipse cx="0" cy="0" rx="28" ry="8" fill="none" stroke="#fde68a" strokeWidth="4" strokeDasharray="50 50" transform="rotate(-20)" opacity="0.6"/>
+                <circle cx="0" cy="0" r="18" fill={pColor} />
+                <circle cx="-6" cy="-6" r="4" fill="white" opacity="0.2" />
+                <path d="M-26 2 Q0 12 26 -2" fill="none" stroke="#fde68a" strokeWidth="3" transform="rotate(-20)" strokeLinecap="round" />
             </g>
+        );
+    }
+    if (deco.type === 'UFO') {
+        return (
+            <g transform={`translate(${deco.x}, ${deco.y - 50}) scale(${s})`}>
+                 <animateTransform attributeName="transform" type="translate" values={`${deco.x},${deco.y-50}; ${deco.x},${deco.y-60}; ${deco.x},${deco.y-50}`} dur="3s" repeatCount="indefinite" />
+                 <path d="M-10 0 Q0 -15 10 0 Z" fill="#60a5fa" opacity="0.8" />
+                 <ellipse cx="0" cy="0" rx="20" ry="6" fill="#94a3b8" stroke="#475569" strokeWidth="1" />
+                 <circle cx="-12" cy="2" r="2" fill="#ef4444" className="animate-ping" />
+                 <circle cx="0" cy="4" r="2" fill="#22c55e" className="animate-ping" style={{animationDelay: '0.3s'}} />
+                 <circle cx="12" cy="2" r="2" fill="#eab308" className="animate-ping" style={{animationDelay: '0.6s'}} />
+            </g>
+        );
+    }
+    if (deco.type === 'SATELLITE') {
+        return (
+            <g transform={`translate(${deco.x}, ${deco.y - 60}) scale(${s}) rotate(20)`}>
+                 <rect x="-20" y="-8" width="14" height="16" fill="#1e40af" stroke="#60a5fa" />
+                 <rect x="6" y="-8" width="14" height="16" fill="#1e40af" stroke="#60a5fa" />
+                 <rect x="-6" y="-6" width="12" height="12" fill="#cbd5e1" />
+                 <line x1="-6" y1="0" x2="-20" y2="0" stroke="#94a3b8" strokeWidth="2" />
+                 <line x1="6" y1="0" x2="20" y2="0" stroke="#94a3b8" strokeWidth="2" />
+                 <line x1="0" y1="-6" x2="0" y2="-15" stroke="#94a3b8" strokeWidth="1" />
+                 <circle cx="0" cy="-15" r="2" fill="#ef4444" className="animate-pulse" />
+            </g>
+        );
+    }
+
+    // --- CYBERPUNK ---
+    if (deco.type === 'NEON_SIGN') {
+        return (
+            <g transform={`translate(${deco.x}, ${deco.y - 50}) scale(${s})`}>
+                 <rect x="-2" y="0" width="4" height="50" fill="#333" />
+                 <rect x="-20" y="-30" width="40" height="20" fill="#111" stroke={color} strokeWidth="3" className="animate-pulse" />
+                 <text x="0" y="-18" textAnchor="middle" fill={color} fontSize="10" fontFamily="monospace" fontWeight="bold">OPEN</text>
+            </g>
+        );
+    }
+    if (deco.type === 'HOLOGRAM') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 40}) scale(${s})`}>
+                <ellipse cx="0" cy="40" rx="10" ry="5" fill="#22d3ee" opacity="0.5" />
+                <path d="M-10 40 L-15 0 L15 0 L10 40 Z" fill="url(#gradHolo)" opacity="0.2" />
+                <circle cx="0" cy="10" r="10" fill="#22d3ee" opacity="0.6">
+                    <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite" />
+                </circle>
+             </g>
+        );
+    }
+    if (deco.type === 'SKYSCRAPER') {
+        return (
+            <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                <path d="M-15 0 L-15 -60 L0 -70 L15 -60 L15 0 Z" fill="#3f3f46" stroke="#22d3ee" strokeWidth="1" />
+                <rect x="-10" y="-50" width="4" height="4" fill="#facc15" />
+                <rect x="5" y="-30" width="4" height="4" fill="#e879f9" />
+                <rect x="-8" y="-20" width="4" height="4" fill="#22d3ee" />
+            </g>
+        );
+    }
+    if (deco.type === 'BLIMP') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 80}) scale(${s})`}>
+                 <ellipse cx="0" cy="0" rx="30" ry="12" fill="#333" stroke="#f0abfc" strokeWidth="2" />
+                 <text x="0" y="4" textAnchor="middle" fill="#f0abfc" fontSize="8" fontWeight="bold">CYBER</text>
+             </g>
+        );
+    }
+
+    // --- CANDY ---
+    if (deco.type === 'CANDY_CANE') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                <path d="M-5 0 L-5 -30 Q-5 -40 5 -40 Q15 -40 15 -30" fill="none" stroke="white" strokeWidth="8" strokeLinecap="round" />
+                <path d="M-5 0 L-5 -30 Q-5 -40 5 -40 Q15 -40 15 -30" fill="none" stroke={color} strokeWidth="8" strokeLinecap="round" strokeDasharray="5 5" />
+             </g>
+        );
+    }
+    if (deco.type === 'LOLLIPOP') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-2" y="-40" width="4" height="40" fill="#fff" />
+                 <circle cx="0" cy="-40" r="15" fill={color} stroke="white" strokeWidth="3" />
+                 <path d="M-10 -40 Q0 -50 10 -40" fill="none" stroke="white" strokeWidth="2" opacity="0.5"/>
+             </g>
+        );
+    }
+    if (deco.type === 'DONUT') {
+        return (
+            <g transform={`translate(${deco.x}, ${deco.y - 10}) scale(${s})`}>
+                 <ellipse cx="0" cy="0" rx="15" ry="8" fill="#fcd34d" />
+                 <ellipse cx="0" cy="-2" rx="15" ry="8" fill="#f472b6" /> {/* Icing */}
+                 <ellipse cx="0" cy="-2" rx="5" ry="3" fill="#bae6fd" /> {/* Hole (sky color approximation) */}
+                 <rect x="-10" y="-5" width="2" height="2" fill="white" />
+                 <rect x="8" y="0" width="2" height="2" fill="yellow" />
+            </g>
+        );
+    }
+    if (deco.type === 'ICE_CREAM') {
+        return (
+            <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                <path d="M0 0 L-10 -20 L10 -20 Z" fill="#fde047" stroke="#b45309" strokeWidth="1" />
+                <circle cx="0" cy="-25" r="10" fill="#f472b6" />
+                <circle cx="0" cy="-35" r="8" fill="#fff" />
+            </g>
+        );
+    }
+
+    // --- OCEAN ---
+    if (deco.type === 'CORAL') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M0 0 L0 -20 Q-10 -30 -10 -40 M0 -20 Q10 -30 10 -35" fill="none" stroke={color} strokeWidth="6" strokeLinecap="round" />
+                 <circle cx="-10" cy="-40" r="3" fill={color} />
+                 <circle cx="10" cy="-35" r="3" fill={color} />
+             </g>
+        );
+    }
+    if (deco.type === 'BUBBLE') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 40}) scale(${s})`}>
+                 <circle cx="0" cy="0" r="5" fill="none" stroke="white" strokeWidth="1" opacity="0.6">
+                    <animate attributeName="cy" values="0;-40" dur="2s" repeatCount="indefinite" />
+                    <animate attributeName="opacity" values="0.6;0" dur="2s" repeatCount="indefinite" />
+                 </circle>
+             </g>
+        );
+    }
+    if (deco.type === 'JELLYFISH') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 40}) scale(${s})`}>
+                 <path d="M-10 0 Q0 -15 10 0" fill="#e879f9" opacity="0.7" />
+                 <line x1="-5" y1="0" x2="-5" y2="10" stroke="#e879f9" strokeWidth="1" />
+                 <line x1="0" y1="0" x2="0" y2="12" stroke="#e879f9" strokeWidth="1" />
+                 <line x1="5" y1="0" x2="5" y2="10" stroke="#e879f9" strokeWidth="1" />
+                 <animateTransform attributeName="transform" type="translate" values={`${deco.x},${deco.y-40}; ${deco.x},${deco.y-50}; ${deco.x},${deco.y-40}`} dur="4s" repeatCount="indefinite" />
+             </g>
+        );
+    }
+    if (deco.type === 'SUBMARINE') {
+         return (
+             <g transform={`translate(${deco.x}, ${deco.y - 30}) scale(${s})`}>
+                 <ellipse cx="0" cy="0" rx="20" ry="10" fill="#facc15" stroke="#ca8a04" strokeWidth="1" />
+                 <rect x="-5" y="-15" width="10" height="8" fill="#facc15" />
+                 <line x1="0" y1="-15" x2="0" y2="-20" stroke="#ca8a04" strokeWidth="2" />
+                 <circle cx="5" cy="0" r="3" fill="#38bdf8" />
+                 <path d="M-20 0 L-25 -5 L-25 5 Z" fill="#ca8a04" /> {/* Propeller */}
+             </g>
          );
     }
-    if (deco.type === 'ROCK') {
-        return (
-             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
-                <ellipse cx="0" cy="5" rx="18" ry="6" fill="rgba(0,0,0,0.2)" />
-                <path d="M-15 0 L-8 -20 L8 -15 L15 0 Z" fill="#64748b" />
-                <path d="M-8 0 L0 -12 L12 0 Z" fill="#94a3b8" />
-                <path d="M-4 -8 L4 -14 L8 -6 Z" fill="#cbd5e1" opacity="0.5" />
-             </g>
-        );
-    }
-    if (deco.type === 'CLOUD') {
-        return (
-            <g transform={`translate(${deco.x}, ${deco.y - 80}) scale(${s})`} opacity="0.9">
-                 <circle cx="-15" cy="0" r="15" fill="white" />
-                 <circle cx="10" cy="-10" r="18" fill="white" />
-                 <circle cx="25" cy="0" r="12" fill="white" />
-                 <circle cx="5" cy="5" r="16" fill="#f1f5f9" />
-            </g>
-        );
-    }
-    if (deco.type === 'MUSHROOM') {
-        const capColor = deco.color || "#ef4444";
-        return (
-            <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
-                <ellipse cx="0" cy="5" rx="10" ry="4" fill="rgba(0,0,0,0.2)" />
-                <path d="M-6 0 L-6 -15 L6 -15 L6 0 Z" fill="#fef3c7" />
-                <path d="M-20 -15 Q0 -45 20 -15 Z" fill={capColor} />
-                <circle cx="-8" cy="-25" r="3" fill="white" opacity="0.8" />
-                <circle cx="10" cy="-20" r="2" fill="white" opacity="0.8" />
-                <circle cx="0" cy="-32" r="4" fill="white" opacity="0.8" />
-            </g>
-        );
-    }
-    if (deco.type === 'FLOWER') {
-        const petalColor = deco.color || "#f472b6";
-        return (
-             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
-                 <path d="M-1 0 L-1 -15 L1 -15 L1 0 Z" fill="#166534" />
-                 <circle cx="-6" cy="-18" r="6" fill={petalColor} />
-                 <circle cx="6" cy="-18" r="6" fill={petalColor} />
-                 <circle cx="0" cy="-24" r="6" fill={petalColor} />
-                 <circle cx="0" cy="-12" r="6" fill={petalColor} />
-                 <circle cx="0" cy="-18" r="4" fill="#fef08a" />
-             </g>
-        );
-    }
+
     if (deco.type === 'STAR') {
         return (
              <g transform={`translate(${deco.x}, ${deco.y - 60}) scale(${s})`} className="animate-pulse">
@@ -230,19 +373,12 @@ const DecorationObj: React.FC<{ deco: Decoration }> = ({ deco }) => {
              </g>
         );
     }
-    if (deco.type === 'LAMP') {
-        return (
-             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
-                 <rect x="-2" y="-30" width="4" height="30" fill="#1e293b" />
-                 <circle cx="0" cy="-30" r="8" fill="#fef3c7" filter="drop-shadow(0 0 8px #fcd34d)" />
-                 <circle cx="0" cy="-30" r="4" fill="#fff" />
-             </g>
-        );
-    }
+
+    // Default Fallback
     return null;
 };
 
-export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlayerId, flyingAnimation }) => {
+export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlayerId, theme, flyingAnimation }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [hoveredTile, setHoveredTile] = useState<Tile | null>(null);
   const [zoom, setZoom] = useState(1.0);
@@ -250,6 +386,17 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
   // Drag State
   const [isDragging, setIsDragging] = useState(false);
   const [lastMousePos, setLastMousePos] = useState({ x: 0, y: 0 });
+
+  // Get Background Gradient based on Theme
+  const getBgGradient = () => {
+      switch (theme) {
+          case 'INTERSTELLAR': return 'radial-gradient(circle at 50% 50%, #1e1b4b 0%, #020617 100%)'; // Deep Space
+          case 'CYBERPUNK': return 'linear-gradient(to bottom right, #2e1065, #0f172a)'; // Dark Purple/Slate
+          case 'CANDY': return 'radial-gradient(circle at 50% 50%, #fce7f3 0%, #fbcfe8 100%)'; // Pinkish
+          case 'OCEAN': return 'linear-gradient(to bottom, #bae6fd, #1e3a8a)'; // Light blue to Deep blue
+          default: return 'radial-gradient(circle at 50% 50%, #bae6fd 0%, #7dd3fc 100%)';
+      }
+  }
 
   // Combine and sort for painter's algorithm
   const renderList = useMemo(() => {
@@ -352,8 +499,8 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
 
   return (
     <div 
-        className="relative w-full h-[600px] bg-sky-200 border-y-8 border-sky-300 shadow-inner font-sans select-none"
-        style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, #bae6fd 0%, #7dd3fc 100%)' }}
+        className="relative w-full h-[600px] border-y-8 border-sky-300 shadow-inner font-sans select-none"
+        style={{ background: getBgGradient() }}
     >
         {/* Zoom Controls */}
         <div className="absolute top-4 right-4 z-40 flex flex-col gap-2">
@@ -393,6 +540,11 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
                                 <stop offset="66%" stopColor="#ffd1ff" />
                                 <stop offset="100%" stopColor="#a18cd1" />
                             </linearGradient>
+                            {/* Hologram Gradient */}
+                            <linearGradient id="gradHolo" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.8"/>
+                                <stop offset="100%" stopColor="#22d3ee" stopOpacity="0"/>
+                            </linearGradient>
                         </defs>
                         <g transform={`translate(${offsetX}, ${offsetY})`}>
                             
@@ -404,7 +556,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
                                     <path 
                                         key={`road-${i}`}
                                         d={`M${t.x} ${t.y} L${next.x} ${next.y}`}
-                                        stroke="rgba(255,255,255,0.5)"
+                                        stroke={theme === 'INTERSTELLAR' || theme === 'CYBERPUNK' ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.5)"}
                                         strokeWidth="32"
                                         strokeLinecap="round"
                                         fill="none"
@@ -447,7 +599,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
                                             onMouseLeave={() => setHoveredTile(null)}
                                             className="cursor-pointer"
                                         >
-                                            <TileBase tile={t} isHovered={hoveredTile?.id === t.id} />
+                                            <TileBase tile={t} isHovered={hoveredTile?.id === t.id} theme={theme} />
                                         </g>
                                     );
                                 }
@@ -458,7 +610,6 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
                                 if (item.type === 'PLAYER') {
                                     const p = item.obj as Player;
                                     const t = item.tile as Tile;
-                                    // Use a cubic-bezier for a "hop" like movement
                                     return (
                                         <g 
                                             key={item.id} 

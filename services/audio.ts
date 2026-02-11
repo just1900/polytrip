@@ -1,3 +1,5 @@
+import { ThemeType } from '../types';
+
 class AudioService {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = false;
@@ -7,20 +9,41 @@ class AudioService {
   private nextNoteTime: number = 0;
   private currentNoteIndex: number = 0;
   private timerID: any = null;
+  private currentTheme: ThemeType = 'INTERSTELLAR';
 
-  // "Merrily We Roll Along" (Mary Had a Little Lamb)
-  // E D C D E E E, D D D, E G G ...
-  // Freqs: C4=261.63, D4=293.66, E4=329.63, G4=392.00
-  private tune = [
-    { f: 329.63, d: 0.4 }, { f: 293.66, d: 0.4 }, { f: 261.63, d: 0.4 }, { f: 293.66, d: 0.4 }, // Ma-ry had a
-    { f: 329.63, d: 0.4 }, { f: 329.63, d: 0.4 }, { f: 329.63, d: 0.8 }, // lit-tle lamb
-    { f: 293.66, d: 0.4 }, { f: 293.66, d: 0.4 }, { f: 293.66, d: 0.8 }, // lit-tle lamb
-    { f: 329.63, d: 0.4 }, { f: 392.00, d: 0.4 }, { f: 392.00, d: 0.8 }, // lit-tle lamb
-    // Repeat with ending
-    { f: 329.63, d: 0.4 }, { f: 293.66, d: 0.4 }, { f: 261.63, d: 0.4 }, { f: 293.66, d: 0.4 },
-    { f: 329.63, d: 0.4 }, { f: 329.63, d: 0.4 }, { f: 329.63, d: 0.4 }, { f: 329.63, d: 0.4 },
-    { f: 293.66, d: 0.4 }, { f: 293.66, d: 0.4 }, { f: 329.63, d: 0.4 }, { f: 293.66, d: 0.4 },
-    { f: 261.63, d: 1.2 }
+  // --- Tunes ---
+
+  // 1. Space: Slow, Ambient, Whole toneish
+  private tuneInterstellar = [
+    { f: 196.00, d: 2.0 }, { f: 220.00, d: 2.0 }, { f: 246.94, d: 2.0 }, { f: 293.66, d: 2.0 }, // G3, A3, B3, D4
+    { f: 196.00, d: 2.0 }, { f: 293.66, d: 2.0 }, { f: 392.00, d: 4.0 }, // G3, D4, G4
+    { f: 329.63, d: 1.0 }, { f: 293.66, d: 1.0 }, { f: 246.94, d: 1.0 }, { f: 220.00, d: 1.0 }, // E4 D4 B3 A3
+  ];
+
+  // 2. Cyberpunk: Fast arpeggios, Minor scale
+  private tuneCyberpunk = [
+    { f: 220.00, d: 0.25 }, { f: 261.63, d: 0.25 }, { f: 329.63, d: 0.25 }, { f: 440.00, d: 0.25 }, // Am Arp
+    { f: 220.00, d: 0.25 }, { f: 261.63, d: 0.25 }, { f: 329.63, d: 0.25 }, { f: 440.00, d: 0.25 },
+    { f: 196.00, d: 0.25 }, { f: 246.94, d: 0.25 }, { f: 293.66, d: 0.25 }, { f: 392.00, d: 0.25 }, // G Major Arp
+    { f: 174.61, d: 0.25 }, { f: 220.00, d: 0.25 }, { f: 261.63, d: 0.25 }, { f: 349.23, d: 0.25 }, // F Major Arp
+  ];
+
+  // 3. Candy: Bouncy, Major, High pitch (Alphabet song / Twinkle style)
+  private tuneCandy = [
+    { f: 523.25, d: 0.5 }, { f: 523.25, d: 0.5 }, { f: 783.99, d: 0.5 }, { f: 783.99, d: 0.5 }, // C C G G
+    { f: 880.00, d: 0.5 }, { f: 880.00, d: 0.5 }, { f: 783.99, d: 1.0 }, // A A G
+    { f: 698.46, d: 0.5 }, { f: 698.46, d: 0.5 }, { f: 659.25, d: 0.5 }, { f: 659.25, d: 0.5 }, // F F E E
+    { f: 587.33, d: 0.5 }, { f: 587.33, d: 0.5 }, { f: 523.25, d: 1.0 }, // D D C
+  ];
+
+  // 4. Ocean: Pentatonic, Flowing, Waltz time (3/4 feel)
+  private tuneOcean = [
+    { f: 261.63, d: 0.5 }, { f: 329.63, d: 0.5 }, { f: 392.00, d: 0.5 }, // C E G
+    { f: 523.25, d: 1.5 }, // C5
+    { f: 392.00, d: 0.5 }, { f: 329.63, d: 0.5 }, { f: 261.63, d: 0.5 }, // G E C
+    { f: 196.00, d: 1.5 }, // G3
+    { f: 220.00, d: 0.5 }, { f: 261.63, d: 0.5 }, { f: 329.63, d: 0.5 }, // A C E
+    { f: 392.00, d: 1.5 }, // G
   ];
 
   private initCtx() {
@@ -31,8 +54,15 @@ class AudioService {
 
   public toggleMute(muted: boolean) {
     this.isMuted = muted;
-    // Immediate silence handled by playNote checks or gain updates if we tracked active nodes
-    // For simplicity in this loop, the next note will just be silenced or 0 volume
+  }
+
+  public startThemeBGM(theme: ThemeType) {
+      this.currentTheme = theme;
+      // Reset if already playing to switch track
+      if (this.isPlayingBGM) {
+          this.stopBGM();
+      }
+      this.playBGM();
   }
 
   public playBGM() {
@@ -50,23 +80,35 @@ class AudioService {
     if (this.timerID) clearTimeout(this.timerID);
   }
 
+  private getCurrentTune() {
+      switch (this.currentTheme) {
+          case 'CYBERPUNK': return this.tuneCyberpunk;
+          case 'CANDY': return this.tuneCandy;
+          case 'OCEAN': return this.tuneOcean;
+          case 'INTERSTELLAR':
+          default: return this.tuneInterstellar;
+      }
+  }
+
   private scheduler() {
     if (!this.isPlayingBGM || !this.ctx) return;
     
+    const tune = this.getCurrentTune();
+
     // Schedule ahead
     while (this.nextNoteTime < this.ctx.currentTime + 0.1) {
-        this.playNote(this.tune[this.currentNoteIndex]);
-        this.advanceNote();
+        this.playNote(tune[this.currentNoteIndex]);
+        this.advanceNote(tune);
     }
     this.timerID = setTimeout(() => this.scheduler(), 25);
   }
 
-  private advanceNote() {
-      this.nextNoteTime += this.tune[this.currentNoteIndex].d;
+  private advanceNote(tune: any[]) {
+      this.nextNoteTime += tune[this.currentNoteIndex].d * 0.6; // Speed mult
       this.currentNoteIndex++;
-      if (this.currentNoteIndex === this.tune.length) {
+      if (this.currentNoteIndex >= tune.length) {
           this.currentNoteIndex = 0;
-          this.nextNoteTime += 0.5; // Small pause between loops
+          this.nextNoteTime += 0.5; // Loop pause
       }
   }
 
@@ -79,18 +121,36 @@ class AudioService {
       osc.connect(gain);
       gain.connect(this.ctx.destination);
       
-      osc.type = 'sine';
+      const now = this.nextNoteTime;
+      const duration = note.d * 0.6;
+
+      // Theme Specific Sound Design
+      if (this.currentTheme === 'CYBERPUNK') {
+          osc.type = 'sawtooth';
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+      } else if (this.currentTheme === 'CANDY') {
+          osc.type = 'triangle'; // Flute-like
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.1, now + 0.05);
+          gain.gain.linearRampToValueAtTime(0, now + duration);
+      } else if (this.currentTheme === 'OCEAN') {
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.2, now + duration / 2);
+          gain.gain.linearRampToValueAtTime(0, now + duration);
+      } else {
+          // Space
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.15, now + 0.1);
+          gain.gain.linearRampToValueAtTime(0, now + duration);
+      }
+      
       osc.frequency.value = note.f;
       
-      // Envelope
-      const now = this.nextNoteTime;
-      gain.gain.setValueAtTime(0, now);
-      gain.gain.linearRampToValueAtTime(0.1, now + 0.05);
-      gain.gain.setValueAtTime(0.1, now + note.d - 0.05);
-      gain.gain.linearRampToValueAtTime(0, now + note.d);
-      
       osc.start(now);
-      osc.stop(now + note.d);
+      osc.stop(now + duration);
   }
 
   public playSFX(type: 'roll' | 'step' | 'boost' | 'penalty' | 'freeze' | 'win' | 'plane') {
@@ -149,34 +209,24 @@ class AudioService {
         osc.stop(now + 0.5);
         break;
       case 'plane':
-        // Jet engine swoosh using Lowpass Noise simulation via multiple oscillators
-        // Since we can't easily create Noise buffer in this simple class without loading,
-        // we simulate it with chaotic oscillators
         const osc2 = this.ctx.createOscillator();
         osc2.connect(gain);
-        
         osc.type = 'sawtooth';
         osc2.type = 'square';
-        
-        // Low rumble rising in pitch
         osc.frequency.setValueAtTime(50, now);
         osc.frequency.exponentialRampToValueAtTime(400, now + 2.5);
-        
         osc2.frequency.setValueAtTime(60, now);
         osc2.frequency.exponentialRampToValueAtTime(300, now + 2.5);
-        
         gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.3, now + 0.5); // Fade in
+        gain.gain.linearRampToValueAtTime(0.3, now + 0.5); 
         gain.gain.setValueAtTime(0.3, now + 2.0);
-        gain.gain.linearRampToValueAtTime(0, now + 3.0); // Fade out
-
+        gain.gain.linearRampToValueAtTime(0, now + 3.0); 
         osc.start(now);
         osc.stop(now + 3.0);
         osc2.start(now);
         osc2.stop(now + 3.0);
         break;
       case 'win':
-        // Arpeggio
         [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {
              const o = this.ctx!.createOscillator();
              const g = this.ctx!.createGain();

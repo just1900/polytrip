@@ -145,6 +145,55 @@ const RabbitHead = ({ id }: { id: string }) => (
   </g>
 );
 
+const SnowFoxHead = ({ id }: { id: string }) => (
+  <g transform="translate(0, -10)">
+      {/* Ears - White with blue/grey inside */}
+      <path d="M-15 -10 L-22 -26 L-5 -18 Z" fill="#e2e8f0" />
+      <path d="M15 -10 L22 -26 L5 -18 Z" fill="#e2e8f0" />
+      <path d="M-15 -10 L-18 -20 L-8 -15 Z" fill="#cbd5e1" /> 
+      <path d="M15 -10 L18 -20 L8 -15 Z" fill="#cbd5e1" />
+
+      {/* Face */}
+      <circle cx="0" cy="0" r="22" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="1" />
+      <circle cx="0" cy="0" r="22" fill={`url(#gradHead-${id})`} opacity="0.1" />
+      
+      {/* Eyes */}
+      <circle cx="-8" cy="2" r="3" fill="#0f172a" />
+      <circle cx="8" cy="2" r="3" fill="#0f172a" />
+      <circle cx="-9" cy="1" r="1" fill="white" />
+      
+      {/* Nose */}
+      <circle cx="0" cy="10" r="2.5" fill="#0f172a" />
+      
+      {/* Cheeks / Blush - Icy Blue */}
+      <ellipse cx="-16" cy="8" rx="4" ry="2.5" fill="#bae6fd" opacity="0.6" />
+      <ellipse cx="16" cy="8" rx="4" ry="2.5" fill="#bae6fd" opacity="0.6" />
+  </g>
+);
+
+const PolarBearHead = ({ id }: { id: string }) => (
+  <g transform="translate(0, -10)">
+      {/* Ears */}
+      <circle cx="-16" cy="-14" r="7" fill="#f1f5f9" stroke="#e2e8f0" strokeWidth="1"/>
+      <circle cx="16" cy="-14" r="7" fill="#f1f5f9" stroke="#e2e8f0" strokeWidth="1"/>
+      {/* Face */}
+      <circle cx="0" cy="0" r="22" fill="#ffffff" stroke="#e2e8f0" strokeWidth="1" />
+      <circle cx="0" cy="0" r="22" fill={`url(#gradHead-${id})`} opacity="0.1" />
+      
+      {/* Snout */}
+      <ellipse cx="0" cy="6" rx="9" ry="7" fill="#f8fafc" />
+      <ellipse cx="0" cy="4" rx="3" ry="2" fill="#1e293b" />
+      
+      {/* Eyes */}
+      <circle cx="-8" cy="-2" r="2.5" fill="#000" />
+      <circle cx="8" cy="-2" r="2.5" fill="#000" />
+
+      {/* Blush */}
+      <ellipse cx="-15" cy="6" rx="4" ry="2.5" fill="#fbcfe8" opacity="0.4" />
+      <ellipse cx="15" cy="6" rx="4" ry="2.5" fill="#fbcfe8" opacity="0.4" />
+  </g>
+);
+
 export const CarAvatar: React.FC<CarAvatarProps> = ({ character, color = "#f87171" }) => {
   const id = useId();
   const gradBody = `gradBody-${id}`;
@@ -157,6 +206,8 @@ export const CarAvatar: React.FC<CarAvatarProps> = ({ character, color = "#f8717
       case 'Bear': return <BearHead id={id} />;
       case 'Cat': return <CatHead id={id} />;
       case 'Rabbit': return <RabbitHead id={id} />;
+      case 'Snow Fox': return <SnowFoxHead id={id} />;
+      case 'Polar Bear': return <PolarBearHead id={id} />;
       case 'Panda':
       default: return <PandaHead id={id} />;
     }

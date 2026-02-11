@@ -1,18 +1,26 @@
 import React, { useState, useCallback, useRef } from 'react';
 import { GameBoard } from './components/GameBoard';
 import { generateMap } from './utils/mapGenerator';
-import { GamePhase, GameState, TileType, TOTAL_TILES, Player, CharacterType } from './types';
+import { GamePhase, GameState, TileType, TOTAL_TILES, Player, CharacterType, ThemeType } from './types';
 // import { generateStorySegment } from './services/gemini'; // Removed Gemini import
 import { audioManager } from './services/audio';
 import { CarAvatar } from './components/CarAvatar';
 import { getFlavorText } from './utils/flavorText';
 
-const AVATAR_OPTIONS: CharacterType[] = ['Panda', 'Dolphin', 'Fox', 'Cat', 'Bear', 'Rabbit'];
+const AVATAR_OPTIONS: CharacterType[] = ['Panda', 'Dolphin', 'Fox', 'Cat', 'Bear', 'Rabbit', 'Snow Fox', 'Polar Bear'];
 const COLOR_OPTIONS = ['#f87171', '#38bdf8', '#fbbf24', '#a78bfa', '#4ade80', '#f472b6'];
+
+const THEMES: { id: ThemeType; name: string; desc: string; color: string }[] = [
+    { id: 'INTERSTELLAR', name: 'Interstellar Drift', desc: 'Space Station to Alien Bridge', color: '#312e81' },
+    { id: 'CYBERPUNK', name: 'Cyber Neon City', desc: 'Slums to Cloud Highway', color: '#c026d3' },
+    { id: 'CANDY', name: 'Candy Kingdom', desc: 'Cookie Plains to Rainbow Road', color: '#f472b6' },
+    { id: 'OCEAN', name: 'Abyssal Relics', desc: 'Coral Reef to Atlantis', color: '#0ea5e9' },
+];
 
 export default function App() {
   const [phase, setPhase] = useState<GamePhase>(GamePhase.DESIGN);
-  const [tiles] = useState(generateMap());
+  const [selectedTheme, setSelectedTheme] = useState<ThemeType>('INTERSTELLAR');
+  const [tiles, setTiles] = useState(generateMap('INTERSTELLAR'));
   const [isMuted, setIsMuted] = useState(false);
 
   // Guard for Dice Roll Race Condition
@@ -81,6 +89,11 @@ export default function App() {
     }
     setSetupPlayers(newPlayers);
   };
+  
+  const handleThemeChange = (theme: ThemeType) => {
+      setSelectedTheme(theme);
+      setTiles(generateMap(theme));
+  };
 
   const startGame = () => {
     setGameState({
@@ -88,10 +101,27 @@ export default function App() {
       activePlayerIndex: 0,
       isMoving: false,
       turnCount: 1,
-      history: [`Welcome to PolyTrip! ${playerCount}-Player Mode.`]
+      history: [`Welcome to ${THEMES.find(t => t.id === selectedTheme)?.name}!`]
     });
     setPhase(GamePhase.PLAYING);
-    if (!isMuted) audioManager.playBGM();
+    if (!isMuted) audioManager.startThemeBGM(selectedTheme);
+  };
+
+  const handlePlayAgain = () => {
+    setTiles(generateMap(selectedTheme));
+    setLastDiceRoll(null);
+    setStoryText(null);
+    setFlyingAnimation(null);
+    setPhase(GamePhase.SETUP);
+  };
+
+  const handleRestartGame = () => {
+      // Direct reset without confirmation to ensure it works on all devices/browsers
+      setLastDiceRoll(null);
+      setStoryText(null);
+      setFlyingAnimation(null);
+      audioManager.stopBGM();
+      setPhase(GamePhase.DESIGN);
   };
 
   // -- Game Mechanics --
@@ -181,23 +211,23 @@ export default function App() {
     // Logic
     if (tile.type === TileType.BOOST) {
       effectPos = Math.min(pos + 3, TOTAL_TILES - 1);
-      newHistory.push(getFlavorText(TileType.BOOST, currentPlayer.character, currentPlayer.name));
+      newHistory.push(getFlavorText(TileType.BOOST, currentPlayer.character, currentPlayer.name, selectedTheme));
       audioManager.playSFX('boost');
     } else if (tile.type === TileType.PENALTY) {
       effectPos = Math.max(pos - 3, 0);
-      newHistory.push(getFlavorText(TileType.PENALTY, currentPlayer.character, currentPlayer.name));
+      newHistory.push(getFlavorText(TileType.PENALTY, currentPlayer.character, currentPlayer.name, selectedTheme));
       audioManager.playSFX('penalty');
     } else if (tile.type === TileType.FREEZE) {
       newFrozen = true;
-      newHistory.push(getFlavorText(TileType.FREEZE, currentPlayer.character, currentPlayer.name));
+      newHistory.push(getFlavorText(TileType.FREEZE, currentPlayer.character, currentPlayer.name, selectedTheme));
       audioManager.playSFX('freeze');
     } else if (tile.type === TileType.SHORTCUT && tile.shortcutTargetId) {
       effectPos = tile.shortcutTargetId;
-      newHistory.push(getFlavorText(TileType.SHORTCUT, currentPlayer.character, currentPlayer.name));
+      newHistory.push(getFlavorText(TileType.SHORTCUT, currentPlayer.character, currentPlayer.name, selectedTheme));
       audioManager.playSFX('boost');
     } else if (tile.type === TileType.PLANE && tile.shortcutTargetId) {
        // Special Plane Logic
-       newHistory.push(getFlavorText(TileType.PLANE, currentPlayer.character, currentPlayer.name));
+       newHistory.push(getFlavorText(TileType.PLANE, currentPlayer.character, currentPlayer.name, selectedTheme));
        
        // Trigger Animation State
        setFlyingAnimation({
@@ -298,8 +328,37 @@ export default function App() {
     return (
       <div className="min-h-screen bg-sky-50 text-slate-800 flex flex-col items-center justify-center p-4 font-sans">
          <div className="bg-white p-8 rounded-[3rem] shadow-xl border-b-[16px] border-slate-200 max-w-4xl w-full">
-            <h2 className="text-4xl font-black text-center mb-8 text-slate-700">Who is playing?</h2>
+            <h2 className="text-4xl font-black text-center mb-6 text-slate-700">Setup Your Game</h2>
             
+            {/* THEME SELECTOR */}
+            <div className="mb-8">
+                <h3 className="text-xl font-bold text-slate-400 uppercase tracking-widest mb-4 text-center">Choose World</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {THEMES.map(t => (
+                        <button
+                            key={t.id}
+                            onClick={() => handleThemeChange(t.id)}
+                            className={`p-4 rounded-2xl border-4 text-left transition-all ${selectedTheme === t.id ? 'bg-slate-50 border-sky-500 shadow-md scale-105' : 'border-slate-100 hover:bg-slate-50 hover:border-slate-200 opacity-60 hover:opacity-100'}`}
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-sm" style={{backgroundColor: t.color}}>
+                                    {t.id === 'INTERSTELLAR' && '🚀'}
+                                    {t.id === 'CYBERPUNK' && '🌆'}
+                                    {t.id === 'CANDY' && '🍭'}
+                                    {t.id === 'OCEAN' && '🌊'}
+                                </div>
+                                <div>
+                                    <div className="font-black text-lg text-slate-700">{t.name}</div>
+                                    <div className="text-xs font-bold text-slate-400">{t.desc}</div>
+                                </div>
+                            </div>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <hr className="border-slate-100 my-6" />
+
             {/* Player Count Selector */}
             <div className="flex justify-center gap-4 mb-8">
               {[1, 2, 3, 4].map(num => (
@@ -394,6 +453,11 @@ export default function App() {
         </div>
         
         <div className="flex items-center gap-4">
+           {phase === GamePhase.PLAYING && (
+               <button onClick={handleRestartGame} className="text-red-400 hover:text-red-500 font-bold text-xs uppercase tracking-wide bg-red-50 hover:bg-red-100 px-3 py-1 rounded-full transition-colors">
+                   Restart
+               </button>
+           )}
            <button onClick={toggleMute} className="text-slate-400 hover:text-sky-500 transition-colors font-bold uppercase tracking-wider text-xs bg-slate-100 px-3 py-1 rounded-full">
               {isMuted ? '🔇 Muted' : '🔊 Sound On'}
            </button>
@@ -409,6 +473,7 @@ export default function App() {
             tiles={tiles} 
             players={gameState.players} 
             activePlayerId={activePlayer.id} 
+            theme={selectedTheme}
             flyingAnimation={flyingAnimation}
         />
         
@@ -429,9 +494,9 @@ export default function App() {
           <div className="flex-1 flex flex-col items-center justify-center gap-8 bg-white rounded-[2.5rem] p-8 border-b-[12px] border-slate-200 relative overflow-hidden shadow-sm">
              
             {phase === GamePhase.GAME_OVER ? (
-               <div className="text-center z-10 animate-bounce">
-                  <h2 className="text-7xl font-black text-yellow-400 mb-6 drop-shadow-[0_4px_0_rgba(0,0,0,0.1)] text-stroke">YOU WIN!</h2>
-                  <button onClick={() => window.location.reload()} className="px-12 py-5 bg-sky-500 text-white font-black text-xl rounded-3xl shadow-xl border-b-8 border-sky-700 active:border-b-0 active:translate-y-2 transition-all">Play Again</button>
+               <div className="text-center z-10">
+                  <h2 className="text-7xl font-black text-yellow-400 mb-6 drop-shadow-[0_4px_0_rgba(0,0,0,0.1)] text-stroke animate-bounce">YOU WIN!</h2>
+                  <button onClick={handlePlayAgain} className="px-12 py-5 bg-sky-500 text-white font-black text-xl rounded-3xl shadow-xl border-b-8 border-sky-700 active:border-b-0 active:translate-y-2 transition-all">Play Again</button>
                </div>
             ) : (
               <>
@@ -468,7 +533,7 @@ export default function App() {
                  </button>
 
                  {lastDiceRoll && !gameState.isMoving && !processingRef.current && !flyingAnimation && (
-                     <div className="absolute top-1/2 right-12 -translate-y-1/2 w-28 h-28 bg-yellow-400 text-white rounded-[2rem] flex items-center justify-center font-black text-7xl shadow-[0_10px_20px_rgba(250,204,21,0.4)] border-b-[12px] border-yellow-600 rotate-12 animate-in zoom-in spin-in-12 z-20">
+                     <div className="absolute top-1/2 right-8 -translate-y-1/2 w-16 h-16 bg-yellow-400 text-white rounded-2xl flex items-center justify-center font-black text-3xl shadow-[0_10px_20px_rgba(250,204,21,0.4)] border-b-8 border-yellow-600 rotate-12 animate-in zoom-in spin-in-12 z-20">
                        {lastDiceRoll}
                      </div>
                   )}

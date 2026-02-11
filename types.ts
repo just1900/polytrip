@@ -15,18 +15,31 @@ export enum TileType {
   PLANE = 'PLANE'
 }
 
+export type ThemeType = 'INTERSTELLAR' | 'CYBERPUNK' | 'CANDY' | 'OCEAN';
+
 export enum ZoneType {
-  CITY = 'City',
-  TUNNEL = 'Tunnel',
-  MOUNTAIN = 'Mountain',
-  BRIDGE = 'Bridge'
+  // Generic mapping, names will be dynamic based on theme
+  ZONE_1 = 'Zone 1',
+  ZONE_2 = 'Zone 2',
+  ZONE_3 = 'Zone 3',
+  ZONE_4 = 'Zone 4'
 }
 
-export type CharacterType = 'Panda' | 'Dolphin' | 'Fox' | 'Cat' | 'Bear' | 'Rabbit';
+export type CharacterType = 'Panda' | 'Dolphin' | 'Fox' | 'Cat' | 'Bear' | 'Rabbit' | 'Snow Fox' | 'Polar Bear';
 
 export interface Decoration {
   id: string;
-  type: 'TREE' | 'ROCK' | 'HOUSE' | 'CLOUD' | 'MUSHROOM' | 'FLOWER' | 'STAR' | 'LAMP';
+  type: 
+    // Generic/Nature
+    'TREE' | 'ROCK' | 'CLOUD' | 'STAR' |
+    // Space
+    'ROCKET' | 'PLANET' | 'UFO' | 'SATELLITE' |
+    // Cyberpunk
+    'NEON_SIGN' | 'HOLOGRAM' | 'SKYSCRAPER' | 'BLIMP' |
+    // Candy
+    'CANDY_CANE' | 'LOLLIPOP' | 'DONUT' | 'ICE_CREAM' |
+    // Ocean
+    'CORAL' | 'BUBBLE' | 'JELLYFISH' | 'SUBMARINE';
   x: number;
   y: number; // Screen coordinates
   gridX: number;
@@ -42,7 +55,7 @@ export interface Tile {
   y: number; // Screen Y
   gridX: number;
   gridY: number;
-  zone: ZoneType;
+  zone: string; // Changed to string to allow dynamic names
   description?: string;
   decorations?: Decoration[];
   shortcutTargetId?: number;
