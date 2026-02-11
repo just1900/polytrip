@@ -27,6 +27,56 @@ const getZoneName = (theme: ThemeType, zoneIdx: number): string => {
     if (zoneIdx === 2) return 'Dark Trench';
     if (zoneIdx === 3) return 'Atlantis';
     return 'The Shallows';
+  } else if (theme === 'ARCTIC') {
+    if (zoneIdx === 1) return 'Ice Shelf';
+    if (zoneIdx === 2) return 'Deep Freeze';
+    if (zoneIdx === 3) return 'Aurora Peak';
+    return 'Glacial Base';
+  } else if (theme === 'JUNGLE') {
+    if (zoneIdx === 1) return 'Dense Canopy';
+    if (zoneIdx === 2) return 'Mist Swamp';
+    if (zoneIdx === 3) return 'Ancient Ruins';
+    return 'Safari Camp';
+  } else if (theme === 'SOCCER') {
+    if (zoneIdx === 1) return 'Training Field';
+    if (zoneIdx === 2) return 'Penalty Box';
+    if (zoneIdx === 3) return 'Championship Arena';
+    return 'Locker Room';
+  } else if (theme === 'MAGMA') {
+    if (zoneIdx === 1) return 'Ash Plains';
+    if (zoneIdx === 2) return 'Basalt Bridge';
+    if (zoneIdx === 3) return 'Core Chamber';
+    return 'Volcano Edge';
+  } else if (theme === 'ANCIENT') {
+    if (zoneIdx === 1) return 'Silk Road';
+    if (zoneIdx === 2) return 'Great Wall';
+    if (zoneIdx === 3) return 'Forbidden City';
+    return 'Imperial Gate';
+  } else if (theme === 'DESERT') {
+    if (zoneIdx === 1) return 'Sand Dunes';
+    if (zoneIdx === 2) return 'Cactus Valley';
+    if (zoneIdx === 3) return 'Red Canyon';
+    return 'Oasis Town';
+  } else if (theme === 'HEAVEN') {
+    if (zoneIdx === 1) return 'Cloud 9';
+    if (zoneIdx === 2) return 'Golden Gates';
+    if (zoneIdx === 3) return 'Starry Expanse';
+    return 'Sky Port';
+  } else if (theme === 'PARK') {
+    if (zoneIdx === 1) return 'Flower Garden';
+    if (zoneIdx === 2) return 'Duck Pond';
+    if (zoneIdx === 3) return 'Picnic Hill';
+    return 'Entrance Gate';
+  } else if (theme === 'GARDEN') {
+    if (zoneIdx === 1) return 'Carrot Field';
+    if (zoneIdx === 2) return 'Broccoli Forest';
+    if (zoneIdx === 3) return 'Pumpkin Patch';
+    return 'Greenhouse';
+  } else if (theme === 'KINDERGARTEN') {
+    if (zoneIdx === 1) return 'Play Area';
+    if (zoneIdx === 2) return 'Nap Room';
+    if (zoneIdx === 3) return 'Art Corner';
+    return 'Toy Castle';
   }
   return `Zone ${zoneIdx}`;
 }
@@ -184,6 +234,66 @@ export const generateMap = (theme: ThemeType = 'INTERSTELLAR'): Tile[] => {
                  else if (r < 0.5) decoType = 'BUBBLE';
                  else if (r < 0.8) decoType = 'JELLYFISH';
                  else decoType = 'SUBMARINE';
+             } else if (theme === 'ARCTIC') {
+                 const r = Math.random();
+                 if (r < 0.4) decoType = 'ICE_CRYSTAL';
+                 else if (r < 0.6) decoType = 'IGLOO';
+                 else if (r < 0.8) decoType = 'SNOWMAN';
+                 else decoType = 'PENGUIN';
+             } else if (theme === 'JUNGLE') {
+                 const r = Math.random();
+                 if (r < 0.4) decoType = 'PALM_TREE';
+                 else if (r < 0.6) decoType = 'VINE';
+                 else if (r < 0.8) decoType = 'TOTEM';
+                 else decoType = 'FLOWER';
+             } else if (theme === 'SOCCER') {
+                 const r = Math.random();
+                 if (r < 0.3) decoType = 'SOCCER_BALL';
+                 else if (r < 0.5) decoType = 'FLAG';
+                 else if (r < 0.7) decoType = 'TROPHY';
+                 else decoType = 'GOAL_POST';
+             } else if (theme === 'MAGMA') {
+                 const r = Math.random();
+                 if (r < 0.3) decoType = 'FIRE_PILLAR';
+                 else if (r < 0.6) decoType = 'LAVA_POOL';
+                 else if (r < 0.8) decoType = 'CHAIN';
+                 else decoType = 'SKULL';
+             } else if (theme === 'ANCIENT') {
+                 const r = Math.random();
+                 if (r < 0.3) decoType = 'LANTERN';
+                 else if (r < 0.6) decoType = 'CHERRY_BLOSSOM';
+                 else if (r < 0.8) decoType = 'SCREEN';
+                 else decoType = 'GATE';
+             } else if (theme === 'DESERT') {
+                 const r = Math.random();
+                 if (r < 0.3) decoType = 'CACTUS';
+                 else if (r < 0.6) decoType = 'BONE';
+                 else if (r < 0.8) decoType = 'TUMBLEWEED';
+                 else decoType = 'OIL_BARREL';
+             } else if (theme === 'HEAVEN') {
+                 const r = Math.random();
+                 if (r < 0.3) decoType = 'CLOUD_PLATFORM';
+                 else if (r < 0.5) decoType = 'HARP';
+                 else if (r < 0.7) decoType = 'WING_STATUE';
+                 else decoType = 'GOLD_ARCH';
+             } else if (theme === 'PARK') {
+                 const r = Math.random();
+                 if (r < 0.3) decoType = 'FOUNTAIN';
+                 else if (r < 0.5) decoType = 'BENCH';
+                 else if (r < 0.7) decoType = 'BUSH_SCULPTURE';
+                 else decoType = 'LAMP_POST';
+             } else if (theme === 'GARDEN') {
+                 const r = Math.random();
+                 if (r < 0.3) decoType = 'BROCCOLI';
+                 else if (r < 0.5) decoType = 'SCARECROW';
+                 else if (r < 0.7) decoType = 'TOMATO';
+                 else decoType = 'SPRINKLER';
+             } else if (theme === 'KINDERGARTEN') {
+                 const r = Math.random();
+                 if (r < 0.3) decoType = 'BLOCKS';
+                 else if (r < 0.5) { decoType = 'CRAYON'; decoColor = getRandom(['#ef4444', '#3b82f6', '#facc15']); }
+                 else if (r < 0.7) decoType = 'ROCKING_HORSE';
+                 else decoType = 'LOCKER';
              }
 
              tile.decorations = tile.decorations || [];

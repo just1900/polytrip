@@ -103,11 +103,61 @@ const TileBase = ({ tile, isHovered, theme }: { tile: Tile, isHovered: boolean, 
         topColor = "#67e8f9"; sideColor = "#06b6d4"; // Shallow Cyan
         if (tile.zone.includes('Trench')) { topColor = "#1e3a8a"; sideColor = "#172554"; } // Deep Blue
         if (tile.zone.includes('Atlantis')) { topColor = "#ccfbf1"; sideColor = "#99f6e4"; } // Glowing Teal
+    } else if (theme === 'ARCTIC') {
+        // Arctic Palette
+        topColor = "#e0f2fe"; sideColor = "#7dd3fc"; // Ice
+        if (tile.zone.includes('Deep')) { topColor = "#0ea5e9"; sideColor = "#0284c7"; }
+        if (tile.zone.includes('Aurora')) { topColor = "#c084fc"; sideColor = "#a855f7"; }
+    } else if (theme === 'JUNGLE') {
+        // Jungle Palette
+        topColor = "#4ade80"; sideColor = "#15803d"; // Lush Green
+        if (tile.zone.includes('Swamp')) { topColor = "#3f6212"; sideColor = "#1a2e05"; } // Murky Green
+        if (tile.zone.includes('Ruins')) { topColor = "#a8a29e"; sideColor = "#57534e"; } // Stone
+    } else if (theme === 'SOCCER') {
+        // Soccer Palette
+        topColor = "#84cc16"; sideColor = "#3f6212"; // Pitch Green
+        if (tile.zone.includes('Penalty')) { topColor = "#fde047"; sideColor = "#eab308"; } // Warning Yellow
+        if (tile.zone.includes('Arena')) { topColor = "#f87171"; sideColor = "#b91c1c"; } // Track Red
+    } else if (theme === 'MAGMA') {
+        // Magma Palette
+        topColor = "#3f3f46"; sideColor = "#18181b"; // Black Rock
+        if (tile.zone.includes('Basalt')) { topColor = "#57534e"; sideColor = "#292524"; }
+        if (tile.zone.includes('Core')) { topColor = "#7f1d1d"; sideColor = "#450a0a"; } // Dark Red
+    } else if (theme === 'ANCIENT') {
+        // Ancient Palette
+        topColor = "#9f1239"; sideColor = "#881337"; // Imperial Red
+        if (tile.zone.includes('Silk')) { topColor = "#fcd34d"; sideColor = "#d97706"; } // Gold
+        if (tile.zone.includes('Wall')) { topColor = "#cbd5e1"; sideColor = "#64748b"; } // Stone
+    } else if (theme === 'DESERT') {
+        // Desert Palette
+        topColor = "#fdba74"; sideColor = "#ea580c"; // Orange Sand
+        if (tile.zone.includes('Canyon')) { topColor = "#c2410c"; sideColor = "#7c2d12"; } // Red Rock
+        if (tile.zone.includes('Oasis')) { topColor = "#fef3c7"; sideColor = "#d97706"; } // Light Sand
+    } else if (theme === 'HEAVEN') {
+        // Heaven Palette
+        topColor = "#ffffff"; sideColor = "#e2e8f0"; // Cloud White
+        if (tile.zone.includes('Golden')) { topColor = "#fef08a"; sideColor = "#fbbf24"; } // Gold
+        if (tile.zone.includes('Sky')) { topColor = "#bae6fd"; sideColor = "#38bdf8"; } // Light Blue
+    } else if (theme === 'PARK') {
+        // Park Palette
+        topColor = "#86efac"; sideColor = "#22c55e"; // Grass
+        if (tile.zone.includes('Pond')) { topColor = "#7dd3fc"; sideColor = "#0284c7"; } // Water
+        if (tile.zone.includes('Picnic')) { topColor = "#fca5a5"; sideColor = "#ef4444"; } // Blanket
+    } else if (theme === 'GARDEN') {
+        // Garden Palette
+        topColor = "#bef264"; sideColor = "#65a30d"; // Lime Green
+        if (tile.zone.includes('Broccoli')) { topColor = "#4d7c0f"; sideColor = "#1a2e05"; } // Dark Green
+        if (tile.zone.includes('Pumpkin')) { topColor = "#fb923c"; sideColor = "#c2410c"; } // Orange
+    } else if (theme === 'KINDERGARTEN') {
+        // Kindergarten Palette
+        topColor = "#fde047"; sideColor = "#ca8a04"; // Yellow
+        if (tile.zone.includes('Nap')) { topColor = "#c4b5fd"; sideColor = "#7c3aed"; } // Lavender
+        if (tile.zone.includes('Art')) { topColor = "#fca5a5"; sideColor = "#ef4444"; } // Pinkish Red
     }
 
     if (tile.type === TileType.STORY) { topColor = "#fff"; sideColor = "#cbd5e1"; } 
     if (tile.type === TileType.SHORTCUT) { topColor = "#d8b4fe"; sideColor = "#c084fc"; } 
-    if (tile.type === TileType.PLANE) { topColor = "#1e293b"; sideColor = "#0f172a"; }
+    // if (tile.type === TileType.PLANE) { topColor = "#1e293b"; sideColor = "#0f172a"; }
 
     const transform = isHovered ? "translate(0, -6)" : "translate(0, 0)";
 
@@ -119,24 +169,54 @@ const TileBase = ({ tile, isHovered, theme }: { tile: Tile, isHovered: boolean, 
     // --- ICONS BASED ON THEME ---
     let icon = "";
     if (tile.type === TileType.BOOST) {
-        if (theme === 'INTERSTELLAR') icon = "🚀"; // Gravity Slingshot
-        else if (theme === 'CYBERPUNK') icon = "⚡"; // Nitro
-        else if (theme === 'CANDY') icon = "🍬"; // Sugar Rush
-        else if (theme === 'OCEAN') icon = "🌊"; // Current
+        if (theme === 'INTERSTELLAR') icon = "🚀"; 
+        else if (theme === 'CYBERPUNK') icon = "⚡"; 
+        else if (theme === 'CANDY') icon = "🍬"; 
+        else if (theme === 'OCEAN') icon = "🌊"; 
+        else if (theme === 'ARCTIC') icon = "🌌"; 
+        else if (theme === 'JUNGLE') icon = "🐆"; 
+        else if (theme === 'SOCCER') icon = "⚽"; 
+        else if (theme === 'MAGMA') icon = "🔥"; 
+        else if (theme === 'ANCIENT') icon = "🌸"; 
+        else if (theme === 'DESERT') icon = "🏎️"; 
+        else if (theme === 'HEAVEN') icon = "🌈"; 
+        else if (theme === 'PARK') icon = "✂️"; 
+        else if (theme === 'GARDEN') icon = "🥬"; 
+        else if (theme === 'KINDERGARTEN') icon = "🪢"; // Jump Rope
         else icon = "🚀";
     }
     else if (tile.type === TileType.PENALTY) {
-        if (theme === 'INTERSTELLAR') icon = "☄️"; // Meteor
-        else if (theme === 'CYBERPUNK') icon = "👾"; // Glitch
-        else if (theme === 'CANDY') icon = "🍫"; // Sticky Choco
-        else if (theme === 'OCEAN') icon = "⚓"; // Anchor
+        if (theme === 'INTERSTELLAR') icon = "☄️"; 
+        else if (theme === 'CYBERPUNK') icon = "👾"; 
+        else if (theme === 'CANDY') icon = "🍫"; 
+        else if (theme === 'OCEAN') icon = "⚓"; 
+        else if (theme === 'ARCTIC') icon = "🧊"; 
+        else if (theme === 'JUNGLE') icon = "🍃"; 
+        else if (theme === 'SOCCER') icon = "🟥"; // Red Card
+        else if (theme === 'MAGMA') icon = "🌋"; 
+        else if (theme === 'ANCIENT') icon = "🌧️"; 
+        else if (theme === 'DESERT') icon = "🌵"; 
+        else if (theme === 'HEAVEN') icon = "🌩️"; 
+        else if (theme === 'PARK') icon = "💦"; 
+        else if (theme === 'GARDEN') icon = "🐛"; 
+        else if (theme === 'KINDERGARTEN') icon = "🚩"; // Flag
         else icon = "🍌";
     }
     else if (tile.type === TileType.FREEZE) {
-        if (theme === 'INTERSTELLAR') icon = "🕳️"; // Blackhole
-        else if (theme === 'CYBERPUNK') icon = "⛔"; // Crash
-        else if (theme === 'CANDY') icon = "🍭"; // Sticky
-        else if (theme === 'OCEAN') icon = "🐙"; // Octopus
+        if (theme === 'INTERSTELLAR') icon = "🕳️"; 
+        else if (theme === 'CYBERPUNK') icon = "⛔"; 
+        else if (theme === 'CANDY') icon = "🍭"; 
+        else if (theme === 'OCEAN') icon = "🐙"; 
+        else if (theme === 'ARCTIC') icon = "🥶"; 
+        else if (theme === 'JUNGLE') icon = "🌿"; 
+        else if (theme === 'SOCCER') icon = "🟨"; // Yellow Card
+        else if (theme === 'MAGMA') icon = "⛓️"; 
+        else if (theme === 'ANCIENT') icon = "🏮"; 
+        else if (theme === 'DESERT') icon = "🌪️"; 
+        else if (theme === 'HEAVEN') icon = "🎼"; 
+        else if (theme === 'PARK') icon = "🪑"; 
+        else if (theme === 'GARDEN') icon = "🐌"; 
+        else if (theme === 'KINDERGARTEN') icon = "⏰"; // Late
         else icon = "💤";
     }
     else if (tile.type === TileType.STORY) icon = "✨";
@@ -145,6 +225,16 @@ const TileBase = ({ tile, isHovered, theme }: { tile: Tile, isHovered: boolean, 
         else if (theme === 'CYBERPUNK') icon = "📡";
         else if (theme === 'CANDY') icon = "🌈";
         else if (theme === 'OCEAN') icon = "🐢";
+        else if (theme === 'ARCTIC') icon = "❄️";
+        else if (theme === 'JUNGLE') icon = "🗿"; // Statue
+        else if (theme === 'SOCCER') icon = "🏆";
+        else if (theme === 'MAGMA') icon = "🐲";
+        else if (theme === 'ANCIENT') icon = "🕊️"; // Crane
+        else if (theme === 'DESERT') icon = "🦅";
+        else if (theme === 'HEAVEN') icon = "✨";
+        else if (theme === 'PARK') icon = "🛶";
+        else if (theme === 'GARDEN') icon = "🕳️"; 
+        else if (theme === 'KINDERGARTEN') icon = "🛝"; // Slide
         else icon = "🪜";
     }
 
@@ -162,21 +252,14 @@ const TileBase = ({ tile, isHovered, theme }: { tile: Tile, isHovered: boolean, 
             {/* Inner Ring / Decor */}
             <ellipse cx="0" cy="0" rx={RX - 8} ry={RY - 6} fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
 
-            {/* Specks for Space/Ocean */}
-            {(theme === 'INTERSTELLAR' || theme === 'OCEAN') && tile.type === TileType.NORMAL && (
+            {/* Specks for Space/Ocean/Arctic */}
+            {(theme === 'INTERSTELLAR' || theme === 'OCEAN' || theme === 'ARCTIC') && tile.type === TileType.NORMAL && (
                 <g opacity="0.3">
                     <circle cx="-20" cy="-10" r="1.5" fill="white" />
                     <circle cx="20" cy="5" r="1" fill="white" />
                 </g>
             )}
-            
-            {/* Special Visuals */}
-            {tile.type === TileType.PLANE && (
-                <g>
-                    <path d="M-20 -10 L-20 10 M0 -10 L0 10 M20 -10 L20 10" stroke="yellow" strokeWidth="3" strokeDasharray="6 3" />
-                    <text textAnchor="middle" y="5" fontSize="24">✈️</text>
-                </g>
-            )}
+
             
             {/* Icon/Text */}
             <g transform="translate(0, -3)">
@@ -192,7 +275,7 @@ const TileBase = ({ tile, isHovered, theme }: { tile: Tile, isHovered: boolean, 
 };
 
 const DecorationObj: React.FC<{ deco: Decoration }> = ({ deco }) => {
-    const s = deco.scale * 1.2; 
+    const s = deco.scale * 1.6; // Increased scale for better visibility (was 1.2)
     const color = deco.color || "#78350f";
     
     // --- SPACE DECORATIONS ---
@@ -365,6 +448,416 @@ const DecorationObj: React.FC<{ deco: Decoration }> = ({ deco }) => {
              </g>
          );
     }
+    
+    // --- ARCTIC ---
+    if (deco.type === 'PENGUIN') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <ellipse cx="0" cy="-10" rx="8" ry="12" fill="#1f2937" />
+                 <ellipse cx="0" cy="-8" rx="5" ry="8" fill="white" />
+                 <circle cx="-3" cy="-14" r="1" fill="black" />
+                 <circle cx="3" cy="-14" r="1" fill="black" />
+                 <path d="M-2 -12 L0 -10 L2 -12" fill="#f59e0b" />
+                 <ellipse cx="-4" cy="0" rx="3" ry="1.5" fill="#f59e0b" />
+                 <ellipse cx="4" cy="0" rx="3" ry="1.5" fill="#f59e0b" />
+             </g>
+        );
+    }
+    if (deco.type === 'ICE_CRYSTAL') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 20}) scale(${s})`}>
+                 <path d="M0 0 L-5 -15 L0 -30 L5 -15 Z" fill="#cffafe" stroke="#22d3ee" strokeWidth="1" />
+                 <path d="M-5 0 L-10 -10 L-5 -20 Z" fill="#a5f3fc" opacity="0.8" />
+                 <path d="M5 0 L10 -10 L5 -20 Z" fill="#a5f3fc" opacity="0.8" />
+             </g>
+        );
+    }
+    if (deco.type === 'IGLOO') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-15 0 A 15 15 0 0 1 15 0" fill="#f0f9ff" stroke="#bae6fd" strokeWidth="2" />
+                 <rect x="-5" y="-5" width="10" height="5" fill="#e0f2fe" stroke="#bae6fd" />
+                 <line x1="-15" y1="0" x2="15" y2="0" stroke="#bae6fd" strokeWidth="2" />
+             </g>
+        );
+    }
+    if (deco.type === 'SNOWMAN') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <circle cx="0" cy="-8" r="10" fill="white" />
+                 <circle cx="0" cy="-22" r="7" fill="white" />
+                 <circle cx="-2" cy="-24" r="1" fill="black" />
+                 <circle cx="2" cy="-24" r="1" fill="black" />
+                 <path d="M0 -22 L4 -21 L0 -20 Z" fill="#f97316" />
+                 <rect x="-6" y="-30" width="12" height="2" fill="#374151" />
+                 <rect x="-4" y="-36" width="8" height="6" fill="#374151" />
+             </g>
+        );
+    }
+
+    // --- JUNGLE ---
+    if (deco.type === 'PALM_TREE') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M0 0 Q5 -20 0 -40" stroke="#78350f" strokeWidth="4" fill="none" />
+                 <g transform="translate(0, -40)">
+                     <path d="M0 0 Q-15 -10 -20 5" stroke="#22c55e" strokeWidth="4" fill="none" />
+                     <path d="M0 0 Q15 -10 20 5" stroke="#22c55e" strokeWidth="4" fill="none" />
+                     <path d="M0 0 Q0 -20 10 -15" stroke="#22c55e" strokeWidth="4" fill="none" />
+                     <path d="M0 0 Q-5 -20 -15 -15" stroke="#22c55e" strokeWidth="4" fill="none" />
+                 </g>
+             </g>
+        );
+    }
+    if (deco.type === 'VINE') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 30}) scale(${s})`}>
+                 <path d="M-10 -10 Q0 10 10 -10 Q0 -30 -10 -10" stroke="#15803d" strokeWidth="2" fill="none" />
+                 <circle cx="0" cy="0" r="2" fill="#15803d" />
+             </g>
+        );
+    }
+    if (deco.type === 'TOTEM') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-8" y="-40" width="16" height="40" fill="#a8a29e" />
+                 <rect x="-10" y="-30" width="20" height="8" fill="#ef4444" />
+                 <rect x="-10" y="-15" width="20" height="8" fill="#facc15" />
+                 <circle cx="-4" cy="-35" r="2" fill="black" />
+                 <circle cx="4" cy="-35" r="2" fill="black" />
+             </g>
+        );
+    }
+    if (deco.type === 'FLOWER') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <line x1="0" y1="0" x2="0" y2="-15" stroke="#22c55e" strokeWidth="2" />
+                 <circle cx="-5" cy="-20" r="5" fill="#f472b6" />
+                 <circle cx="5" cy="-20" r="5" fill="#f472b6" />
+                 <circle cx="0" cy="-25" r="5" fill="#f472b6" />
+                 <circle cx="0" cy="-15" r="5" fill="#f472b6" />
+                 <circle cx="0" cy="-20" r="3" fill="#facc15" />
+             </g>
+        );
+    }
+
+    // --- SOCCER ---
+    if (deco.type === 'SOCCER_BALL') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 10}) scale(${s})`}>
+                 <circle cx="0" cy="0" r="10" fill="white" stroke="black" strokeWidth="1" />
+                 <path d="M-4 -2 L4 -2 L0 4 Z" fill="black" />
+                 <path d="M-8 4 L-4 8" stroke="black" strokeWidth="1" />
+                 <path d="M8 4 L4 8" stroke="black" strokeWidth="1" />
+                 <path d="M0 -10 L0 -6" stroke="black" strokeWidth="1" />
+             </g>
+        );
+    }
+    if (deco.type === 'FLAG') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <line x1="0" y1="0" x2="0" y2="-30" stroke="#f1f5f9" strokeWidth="2" />
+                 <path d="M0 -30 L15 -25 L0 -20 Z" fill="#ef4444" />
+             </g>
+        );
+    }
+    if (deco.type === 'TROPHY') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 10}) scale(${s})`}>
+                 <path d="M-8 0 L-5 -15 L5 -15 L8 0 L0 5 Z" fill="#eab308" />
+                 <rect x="-4" y="5" width="8" height="5" fill="#ca8a04" />
+             </g>
+        );
+    }
+    if (deco.type === 'GOAL_POST') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <line x1="-15" y1="0" x2="-15" y2="-25" stroke="white" strokeWidth="3" />
+                 <line x1="15" y1="0" x2="15" y2="-25" stroke="white" strokeWidth="3" />
+                 <line x1="-15" y1="-25" x2="15" y2="-25" stroke="white" strokeWidth="3" />
+             </g>
+        );
+    }
+    
+    // --- MAGMA ---
+    if (deco.type === 'FIRE_PILLAR') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 20}) scale(${s})`}>
+                 <path d="M-10 20 L0 -30 L10 20 Z" fill="#ef4444" opacity="0.8">
+                    <animate attributeName="d" values="M-10 20 L0 -30 L10 20 Z; M-8 20 L0 -40 L8 20 Z; M-10 20 L0 -30 L10 20 Z" dur="0.8s" repeatCount="indefinite"/>
+                 </path>
+                 <path d="M-5 20 L0 -15 L5 20 Z" fill="#facc15">
+                     <animate attributeName="opacity" values="0.6;1;0.6" dur="0.5s" repeatCount="indefinite"/>
+                 </path>
+             </g>
+        );
+    }
+    if (deco.type === 'LAVA_POOL') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <ellipse cx="0" cy="0" rx="20" ry="10" fill="#b91c1c" />
+                 <ellipse cx="0" cy="0" rx="15" ry="7" fill="#ef4444" />
+                 <circle cx="-5" cy="-2" r="2" fill="#facc15">
+                     <animate attributeName="r" values="0;4;0" dur="2s" repeatCount="indefinite" />
+                 </circle>
+             </g>
+        );
+    }
+    if (deco.type === 'CHAIN') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 30}) scale(${s})`}>
+                 <path d="M-5 -20 Q0 0 5 -20" stroke="#57534e" strokeWidth="3" fill="none" />
+                 <path d="M-5 -10 Q0 10 5 -10" stroke="#57534e" strokeWidth="3" fill="none" />
+                 <path d="M0 0 L0 15" stroke="#57534e" strokeWidth="2" />
+                 <circle cx="0" cy="18" r="3" fill="#292524" />
+             </g>
+        );
+    }
+    if (deco.type === 'SKULL') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-6 -8 L-6 -14 Q0 -20 6 -14 L6 -8 Q0 0 -6 -8" fill="#e5e5e5" />
+                 <circle cx="-2" cy="-12" r="1.5" fill="black" />
+                 <circle cx="2" cy="-12" r="1.5" fill="black" />
+                 <path d="M-1 -8 L0 -9 L1 -8" stroke="black" strokeWidth="0.5" />
+             </g>
+        );
+    }
+
+    // --- ANCIENT ---
+    if (deco.type === 'LANTERN') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 40}) scale(${s})`}>
+                 <line x1="0" y1="0" x2="0" y2="-20" stroke="#78350f" strokeWidth="1" />
+                 <ellipse cx="0" cy="0" rx="10" ry="12" fill="#dc2626" />
+                 <path d="M-10 0 L10 0" stroke="#facc15" strokeWidth="2" opacity="0.5" />
+                 <rect x="-4" y="10" width="8" height="6" fill="#facc15" />
+                 <animateTransform attributeName="transform" type="rotate" values="-5 0 -50; 5 0 -50; -5 0 -50" dur="3s" repeatCount="indefinite" />
+             </g>
+        );
+    }
+    if (deco.type === 'CHERRY_BLOSSOM') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 30}) scale(${s})`}>
+                 <path d="M0 30 Q5 10 0 0" stroke="#57534e" strokeWidth="3" />
+                 <circle cx="-5" cy="5" r="4" fill="#fbcfe8" />
+                 <circle cx="5" cy="0" r="5" fill="#fbcfe8" />
+                 <circle cx="0" cy="-5" r="4" fill="#fbcfe8" />
+                 <circle cx="0" cy="0" r="2" fill="#f472b6" />
+             </g>
+        );
+    }
+    if (deco.type === 'SCREEN') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-15" y="-20" width="30" height="20" fill="#fef3c7" stroke="#78350f" strokeWidth="2" />
+                 <path d="M-5 -15 L5 -5 M5 -15 L-5 -5" stroke="#dc2626" strokeWidth="1" />
+             </g>
+        );
+    }
+    if (deco.type === 'GATE') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-15" y="-30" width="4" height="30" fill="#b91c1c" />
+                 <rect x="11" y="-30" width="4" height="30" fill="#b91c1c" />
+                 <path d="M-20 -25 L20 -25 L20 -30 L-20 -30 Z" fill="#b91c1c" />
+                 <path d="M-22 -32 L22 -32 L20 -25 L-20 -25 Z" fill="#7f1d1d" />
+             </g>
+        );
+    }
+
+    // --- DESERT ---
+    if (deco.type === 'CACTUS') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-4" y="-30" width="8" height="30" rx="4" fill="#16a34a" />
+                 <path d="M-4 -20 L-10 -20 L-10 -28 L-6 -28" fill="none" stroke="#16a34a" strokeWidth="4" strokeLinecap="round" />
+                 <path d="M4 -15 L10 -15 L10 -22 L6 -22" fill="none" stroke="#16a34a" strokeWidth="4" strokeLinecap="round" />
+             </g>
+        );
+    }
+    if (deco.type === 'BONE') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-10 0 L10 0" stroke="#fefce8" strokeWidth="4" strokeLinecap="round" />
+                 <circle cx="-12" cy="-2" r="2" fill="#fefce8" />
+                 <circle cx="-12" cy="2" r="2" fill="#fefce8" />
+                 <circle cx="12" cy="-2" r="2" fill="#fefce8" />
+                 <circle cx="12" cy="2" r="2" fill="#fefce8" />
+             </g>
+        );
+    }
+    if (deco.type === 'TUMBLEWEED') {
+         return (
+             <g transform={`translate(${deco.x}, ${deco.y - 5}) scale(${s})`}>
+                 <circle cx="0" cy="0" r="8" fill="none" stroke="#a16207" strokeWidth="1" strokeDasharray="4 2" />
+                 <circle cx="0" cy="0" r="6" fill="none" stroke="#a16207" strokeWidth="1" transform="rotate(45)" />
+                 <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="4s" repeatCount="indefinite" />
+             </g>
+         );
+    }
+    if (deco.type === 'OIL_BARREL') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-8" y="-20" width="16" height="20" fill="#dc2626" stroke="#991b1b" />
+                 <line x1="-8" y1="-15" x2="8" y2="-15" stroke="#991b1b" />
+                 <line x1="-8" y1="-5" x2="8" y2="-5" stroke="#991b1b" />
+                 <text x="0" y="-8" fontSize="6" textAnchor="middle" fill="white">TNT</text>
+             </g>
+        );
+    }
+
+    // --- HEAVEN ---
+    if (deco.type === 'CLOUD_PLATFORM') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <circle cx="-10" cy="-5" r="8" fill="white" />
+                 <circle cx="0" cy="-10" r="10" fill="white" />
+                 <circle cx="10" cy="-5" r="8" fill="white" />
+             </g>
+        );
+    }
+    if (deco.type === 'HARP') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 10}) scale(${s})`}>
+                 <path d="M-5 0 L-5 -20 Q5 -25 10 -10 L0 0 Z" fill="none" stroke="#facc15" strokeWidth="2" />
+                 <line x1="-2" y1="0" x2="-2" y2="-18" stroke="#facc15" strokeWidth="0.5" />
+                 <line x1="0" y1="0" x2="2" y2="-15" stroke="#facc15" strokeWidth="0.5" />
+             </g>
+        );
+    }
+    if (deco.type === 'WING_STATUE') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M0 0 L-10 -10 Q-15 -20 -5 -25" stroke="white" strokeWidth="3" fill="none" />
+                 <path d="M0 0 L10 -10 Q15 -20 5 -25" stroke="white" strokeWidth="3" fill="none" />
+             </g>
+        );
+    }
+    if (deco.type === 'GOLD_ARCH') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-15 0 Q0 -30 15 0" stroke="#facc15" strokeWidth="3" fill="none" />
+             </g>
+        );
+    }
+
+    // --- PARK ---
+    if (deco.type === 'FOUNTAIN') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <ellipse cx="0" cy="0" rx="15" ry="5" fill="#e2e8f0" stroke="#94a3b8" />
+                 <rect x="-2" y="-10" width="4" height="10" fill="#e2e8f0" />
+                 <circle cx="0" cy="-15" r="2" fill="#38bdf8" />
+                 <path d="M0 -15 Q-5 -25 -10 -10" stroke="#38bdf8" fill="none" />
+                 <path d="M0 -15 Q5 -25 10 -10" stroke="#38bdf8" fill="none" />
+             </g>
+        );
+    }
+    if (deco.type === 'BENCH') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 5}) scale(${s})`}>
+                 <line x1="-10" y1="0" x2="10" y2="0" stroke="#78350f" strokeWidth="4" />
+                 <line x1="-10" y1="-5" x2="10" y2="-5" stroke="#78350f" strokeWidth="2" />
+                 <line x1="-8" y1="0" x2="-8" y2="5" stroke="#3f3f46" strokeWidth="1" />
+                 <line x1="8" y1="0" x2="8" y2="5" stroke="#3f3f46" strokeWidth="1" />
+             </g>
+        );
+    }
+    if (deco.type === 'BUSH_SCULPTURE') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-8" y="-15" width="16" height="15" rx="5" fill="#16a34a" />
+                 <rect x="-2" y="0" width="4" height="5" fill="#78350f" />
+             </g>
+        );
+    }
+    if (deco.type === 'LAMP_POST') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <line x1="0" y1="0" x2="0" y2="-30" stroke="#1f2937" strokeWidth="1" />
+                 <circle cx="0" cy="-30" r="3" fill="#facc15" />
+                 <circle cx="0" cy="-30" r="5" fill="#facc15" opacity="0.3" className="animate-pulse" />
+             </g>
+        );
+    }
+
+    // --- GARDEN ---
+    if (deco.type === 'BROCCOLI') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M0 0 L0 -15" stroke="#65a30d" strokeWidth="6" />
+                 <circle cx="-8" cy="-20" r="8" fill="#4d7c0f" />
+                 <circle cx="8" cy="-20" r="8" fill="#4d7c0f" />
+                 <circle cx="0" cy="-25" r="10" fill="#65a30d" />
+             </g>
+        );
+    }
+    if (deco.type === 'SCARECROW') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 20}) scale(${s})`}>
+                 <line x1="0" y1="0" x2="0" y2="20" stroke="#78350f" strokeWidth="2" />
+                 <line x1="-10" y1="-5" x2="10" y2="-5" stroke="#78350f" strokeWidth="2" />
+                 <circle cx="0" cy="-10" r="5" fill="#fde047" />
+                 <path d="M-10 -5 L10 -5 L5 10 L-5 10 Z" fill="#3b82f6" />
+             </g>
+        );
+    }
+    if (deco.type === 'TOMATO') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 10}) scale(${s})`}>
+                 <circle cx="0" cy="0" r="10" fill="#ef4444" />
+                 <path d="M0 -10 L-3 -14 M0 -10 L3 -14" stroke="#4ade80" strokeWidth="2" />
+             </g>
+        );
+    }
+    if (deco.type === 'SPRINKLER') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-2" y="-5" width="4" height="5" fill="#475569" />
+                 <circle cx="0" cy="-5" r="3" fill="#94a3b8" />
+                 <path d="M0 -5 L10 -10" stroke="#38bdf8" strokeWidth="2" strokeDasharray="2 2" className="animate-ping" />
+             </g>
+        );
+    }
+
+    // --- KINDERGARTEN ---
+    if (deco.type === 'BLOCKS') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-10" y="-10" width="10" height="10" fill="#ef4444" stroke="#b91c1c" strokeWidth="1" />
+                 <rect x="0" y="-10" width="10" height="10" fill="#3b82f6" stroke="#1d4ed8" strokeWidth="1" />
+                 <rect x="-5" y="-20" width="10" height="10" fill="#facc15" stroke="#b45309" strokeWidth="1" />
+             </g>
+        );
+    }
+    if (deco.type === 'CRAYON') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-5 0 L-5 -25 L0 -35 L5 -25 L5 0 Z" fill={color} stroke="black" strokeWidth="0.5" />
+                 <rect x="-5" y="-20" width="10" height="15" fill="black" opacity="0.1" />
+             </g>
+        );
+    }
+    if (deco.type === 'ROCKING_HORSE') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-15 0 Q0 5 15 0" stroke="#78350f" strokeWidth="3" fill="none" />
+                 <path d="M-5 0 L-5 -15 L5 -15 L5 0" stroke="#fcd34d" strokeWidth="4" />
+                 <circle cx="-5" cy="-20" r="5" fill="#fcd34d" />
+             </g>
+        );
+    }
+    if (deco.type === 'LOCKER') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-8" y="-25" width="16" height="25" fill="#9ca3af" stroke="#4b5563" />
+                 <line x1="-8" y1="-12" x2="8" y2="-12" stroke="#4b5563" />
+                 <rect x="-6" y="-22" width="12" height="2" fill="#4b5563" />
+                 <rect x="-6" y="-9" width="12" height="2" fill="#4b5563" />
+             </g>
+        );
+    }
 
     if (deco.type === 'STAR') {
         return (
@@ -397,6 +890,16 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
           case 'CYBERPUNK': return 'linear-gradient(to bottom right, #2e1065, #0f172a)'; // Dark Purple/Slate
           case 'CANDY': return 'radial-gradient(circle at 50% 50%, #fce7f3 0%, #fbcfe8 100%)'; // Pinkish
           case 'OCEAN': return 'linear-gradient(to bottom, #bae6fd, #1e3a8a)'; // Light blue to Deep blue
+          case 'ARCTIC': return 'linear-gradient(to bottom, #e0f2fe, #7dd3fc, #0284c7)'; // Ice Blue
+          case 'JUNGLE': return 'linear-gradient(to bottom, #dcfce7, #4ade80, #14532d)'; // Green lush
+          case 'SOCCER': return 'radial-gradient(circle at 50% 50%, #ecfccb 0%, #65a30d 100%)'; // Stadium lights
+          case 'MAGMA': return 'radial-gradient(circle at 50% 50%, #7f1d1d 0%, #450a0a 100%)'; // Red Dark
+          case 'ANCIENT': return 'linear-gradient(to bottom, #fef2f2, #fca5a5, #ef4444)'; // Red Mist
+          case 'DESERT': return 'linear-gradient(to bottom, #ffedd5, #fdba74, #ea580c)'; // Orange Sunset
+          case 'HEAVEN': return 'radial-gradient(circle at 50% 10%, #ffffff 0%, #bae6fd 100%)'; // Sky
+          case 'PARK': return 'linear-gradient(to bottom, #f0fdf4, #bbf7d0, #86efac)'; // Fresh Green
+          case 'GARDEN': return 'linear-gradient(to bottom, #fefce8, #d9f99d, #65a30d)'; // Sunny Garden
+          case 'KINDERGARTEN': return 'linear-gradient(to bottom, #fff7ed, #fde68a, #fcd34d)'; // Warm Yellow
           default: return 'radial-gradient(circle at 50% 50%, #bae6fd 0%, #7dd3fc 100%)';
       }
   }
@@ -567,7 +1070,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
                                     <path 
                                         key={`road-${i}`}
                                         d={`M${t.x} ${t.y} L${next.x} ${next.y}`}
-                                        stroke={theme === 'INTERSTELLAR' || theme === 'CYBERPUNK' ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.5)"}
+                                        stroke={theme === 'INTERSTELLAR' || theme === 'CYBERPUNK' || theme === 'MAGMA' ? "rgba(255,255,255,0.2)" : "rgba(255,255,255,0.5)"}
                                         strokeWidth="32"
                                         strokeLinecap="round"
                                         fill="none"

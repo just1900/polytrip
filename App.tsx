@@ -15,6 +15,16 @@ const THEMES: { id: ThemeType; name: string; desc: string; color: string }[] = [
     { id: 'CYBERPUNK', name: 'Cyber Neon City', desc: 'Slums to Cloud Highway', color: '#c026d3' },
     { id: 'CANDY', name: 'Candy Kingdom', desc: 'Cookie Plains to Rainbow Road', color: '#f472b6' },
     { id: 'OCEAN', name: 'Abyssal Relics', desc: 'Coral Reef to Atlantis', color: '#0ea5e9' },
+    { id: 'ARCTIC', name: 'Glacial Arctic', desc: 'Frozen Tundra to Aurora', color: '#0ea5e9' },
+    { id: 'JUNGLE', name: 'Jungle Safari', desc: 'Ancient Ruins to Waterfall', color: '#16a34a' },
+    { id: 'SOCCER', name: 'Soccer Stadium', desc: 'Kickoff to Championship', color: '#84cc16' },
+    { id: 'MAGMA', name: 'Magma Dungeon', desc: 'Lava Lake to Dragon Lair', color: '#ef4444' },
+    { id: 'ANCIENT', name: 'Ancient Empire', desc: 'Silk Road to Forbidden Palace', color: '#dc2626' },
+    { id: 'DESERT', name: 'Desert Rally', desc: 'Dunes to Canyon', color: '#d97706' },
+    { id: 'HEAVEN', name: 'Cloud Heaven', desc: 'Sky Gates to Valhalla', color: '#60a5fa' },
+    { id: 'PARK', name: 'Relaxing Park', desc: 'Gardens to Picnic Area', color: '#4ade80' },
+    { id: 'GARDEN', name: 'Vegetable Garden', desc: 'Giant Broccoli to Pumpkin Patch', color: '#65a30d' },
+    { id: 'KINDERGARTEN', name: 'Happy Kindergarten', desc: 'Toy Castle to Nap Room', color: '#fbbf24' },
 ];
 
 export default function App() {
@@ -229,23 +239,23 @@ export default function App() {
       audioManager.playSFX('boost');
     } else if (tile.type === TileType.PLANE && tile.shortcutTargetId) {
        // Special Plane Logic
-       newHistory.push(getFlavorText(TileType.PLANE, currentPlayer.character, currentPlayer.name, selectedTheme));
+      //  newHistory.push(getFlavorText(TileType.PLANE, currentPlayer.character, currentPlayer.name, selectedTheme));
        
-       // Trigger Animation State
-       setFlyingAnimation({
-           playerId: currentPlayer.id,
-           startTileId: pos,
-           endTileId: tile.shortcutTargetId
-       });
+      //  // Trigger Animation State
+      //  setFlyingAnimation({
+      //      playerId: currentPlayer.id,
+      //      startTileId: pos,
+      //      endTileId: tile.shortcutTargetId
+      //  });
        
-       audioManager.playSFX('plane');
+      //  // REMOVED audioManager.playSFX('plane'); here as requested
 
-       // Pause execution for animation duration (3s)
-       // We return early from the normal update flow, then execute the landing update after timeout
-       setTimeout(() => {
-           setFlyingAnimation(null);
-           finishArrival(tile.shortcutTargetId!, newFrozen, newHistory, currentPlayer.id);
-       }, 3000);
+      //  // Pause execution for animation duration (3s)
+      //  // We return early from the normal update flow, then execute the landing update after timeout
+      //  setTimeout(() => {
+      //      setFlyingAnimation(null);
+      //      finishArrival(tile.shortcutTargetId!, newFrozen, newHistory, currentPlayer.id);
+      //  }, 3000);
 
        // Don't execute the standard update yet
        return;
@@ -335,7 +345,7 @@ export default function App() {
             {/* THEME SELECTOR */}
             <div className="mb-8">
                 <h3 className="text-xl font-bold text-slate-400 uppercase tracking-widest mb-4 text-center">Choose World</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 h-64 overflow-y-auto no-scrollbar pr-2">
                     {THEMES.map(t => (
                         <button
                             key={t.id}
@@ -343,11 +353,21 @@ export default function App() {
                             className={`p-4 rounded-2xl border-4 text-left transition-all ${selectedTheme === t.id ? 'bg-slate-50 border-sky-500 shadow-md scale-105' : 'border-slate-100 hover:bg-slate-50 hover:border-slate-200 opacity-60 hover:opacity-100'}`}
                         >
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-sm" style={{backgroundColor: t.color}}>
+                                <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-2xl shadow-sm min-w-[3rem]" style={{backgroundColor: t.color}}>
                                     {t.id === 'INTERSTELLAR' && '🚀'}
                                     {t.id === 'CYBERPUNK' && '🌆'}
                                     {t.id === 'CANDY' && '🍭'}
                                     {t.id === 'OCEAN' && '🌊'}
+                                    {t.id === 'ARCTIC' && '❄️'}
+                                    {t.id === 'JUNGLE' && '🌿'}
+                                    {t.id === 'SOCCER' && '⚽'}
+                                    {t.id === 'MAGMA' && '🌋'}
+                                    {t.id === 'ANCIENT' && '🏮'}
+                                    {t.id === 'DESERT' && '🏜️'}
+                                    {t.id === 'HEAVEN' && '☁️'}
+                                    {t.id === 'PARK' && '🌳'}
+                                    {t.id === 'GARDEN' && '🥕'}
+                                    {t.id === 'KINDERGARTEN' && '🎒'}
                                 </div>
                                 <div>
                                     <div className="font-black text-lg text-slate-700">{t.name}</div>

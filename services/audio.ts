@@ -46,6 +46,89 @@ class AudioService {
     { f: 392.00, d: 1.5 }, // G
   ];
 
+  // 5. Arctic: High pitch, crystal-like, slow intervals
+  private tuneArctic = [
+    { f: 523.25, d: 0.5 }, { f: 0, d: 0.5 }, { f: 783.99, d: 0.5 }, { f: 0, d: 0.5 }, // C5 pause G5 pause
+    { f: 1046.50, d: 1.0 }, { f: 0, d: 0.5 }, // C6
+    { f: 783.99, d: 0.5 }, { f: 659.25, d: 0.5 }, { f: 587.33, d: 1.0 }, // G5 E5 D5
+    { f: 0, d: 1.0 },
+    { f: 587.33, d: 0.5 }, { f: 659.25, d: 0.5 }, { f: 783.99, d: 1.0 }, // D5 E5 G5
+  ];
+
+  // 6. Jungle: Rhythmic, lower percussion simulation (using low freqs), tribal feel
+  private tuneJungle = [
+    { f: 110.00, d: 0.25 }, { f: 110.00, d: 0.25 }, { f: 164.81, d: 0.5 }, // A2 A2 E3
+    { f: 110.00, d: 0.5 }, { f: 196.00, d: 0.5 }, // A2 G3
+    { f: 110.00, d: 0.25 }, { f: 110.00, d: 0.25 }, { f: 164.81, d: 0.5 }, 
+    { f: 220.00, d: 0.5 }, { f: 196.00, d: 0.5 }, // A3 G3
+  ];
+
+  // 7. Soccer: Fanfare, Energetic, Major arpeggios (Trumpet style)
+  private tuneSoccer = [
+    { f: 392.00, d: 0.33 }, { f: 523.25, d: 0.33 }, { f: 659.25, d: 0.33 }, // G C E (Triplet)
+    { f: 783.99, d: 1.0 }, // G5
+    { f: 659.25, d: 0.5 }, { f: 783.99, d: 0.5 }, // E G
+    { f: 1046.50, d: 1.5 }, // C6
+    { f: 783.99, d: 0.5 }, // G
+    { f: 523.25, d: 0.5 }, { f: 392.00, d: 0.5 }, { f: 261.63, d: 1.0 }, // C G C
+  ];
+
+  // 8. Magma: Heavy, low, intense intervals
+  private tuneMagma = [
+    { f: 110.00, d: 1.0 }, { f: 103.83, d: 0.5 }, { f: 110.00, d: 0.5 }, // A2 G#2 A2
+    { f: 130.81, d: 1.0 }, { f: 110.00, d: 1.0 }, // C3 A2
+    { f: 82.41, d: 2.0 }, // E2
+    { f: 110.00, d: 0.5 }, { f: 123.47, d: 0.5 }, { f: 130.81, d: 0.5 }, { f: 146.83, d: 0.5 },
+  ];
+
+  // 9. Ancient: Pentatonic Chinese-style scale
+  private tuneAncient = [
+    { f: 329.63, d: 0.5 }, { f: 392.00, d: 0.5 }, { f: 440.00, d: 1.0 }, // E G A
+    { f: 587.33, d: 0.5 }, { f: 440.00, d: 0.5 }, { f: 392.00, d: 1.0 }, // D A G
+    { f: 329.63, d: 0.5 }, { f: 293.66, d: 0.5 }, { f: 329.63, d: 1.0 }, // E D E
+    { f: 196.00, d: 2.0 }, // G3
+  ];
+
+  // 10. Desert: Blues/Rock style riff
+  private tuneDesert = [
+    { f: 146.83, d: 0.5 }, { f: 164.81, d: 0.5 }, { f: 196.00, d: 0.5 }, // D E G
+    { f: 220.00, d: 0.25 }, { f: 196.00, d: 0.25 }, { f: 185.00, d: 0.25 }, { f: 174.61, d: 0.25 }, // Chromatic slide
+    { f: 146.83, d: 1.0 }, // D
+    { f: 0, d: 0.5 },
+    { f: 146.83, d: 0.25 }, { f: 146.83, d: 0.25 }, { f: 293.66, d: 1.0 }, // Octave jump
+  ];
+
+  // 11. Heaven: High, pure sine waves, ethereal
+  private tuneHeaven = [
+    { f: 523.25, d: 1.0 }, { f: 659.25, d: 1.0 }, { f: 783.99, d: 1.0 }, { f: 1046.50, d: 1.0 }, // C E G C
+    { f: 880.00, d: 1.0 }, { f: 783.99, d: 1.0 }, 
+    { f: 698.46, d: 1.0 }, { f: 659.25, d: 1.0 }, 
+  ];
+
+  // 12. Park: Light Jazz/Swing
+  private tunePark = [
+    { f: 261.63, d: 0.5 }, { f: 329.63, d: 0.5 }, { f: 392.00, d: 0.5 }, { f: 440.00, d: 0.5 }, // Walk up
+    { f: 392.00, d: 0.25 }, { f: 440.00, d: 0.25 }, { f: 392.00, d: 0.5 },
+    { f: 293.66, d: 0.5 }, { f: 349.23, d: 0.5 }, 
+    { f: 261.63, d: 1.0 },
+  ];
+
+  // 13. Garden: Playful, Staccato, Woodwind-ish
+  private tuneGarden = [
+    { f: 392.00, d: 0.25 }, { f: 0, d: 0.25 }, { f: 329.63, d: 0.25 }, { f: 0, d: 0.25 }, // G E
+    { f: 261.63, d: 0.25 }, { f: 0, d: 0.25 }, { f: 329.63, d: 0.25 }, { f: 0, d: 0.25 }, // C E
+    { f: 392.00, d: 0.25 }, { f: 329.63, d: 0.25 }, { f: 392.00, d: 0.25 }, { f: 440.00, d: 0.25 }, // G E G A
+    { f: 392.00, d: 0.5 }, { f: 329.63, d: 0.5 }, // G E
+  ];
+
+  // 14. Kindergarten: Nursery Rhyme (Twinkle Twinkle / ABC style)
+  private tuneKindergarten = [
+    { f: 261.63, d: 0.5 }, { f: 261.63, d: 0.5 }, { f: 392.00, d: 0.5 }, { f: 392.00, d: 0.5 }, // C C G G
+    { f: 440.00, d: 0.5 }, { f: 440.00, d: 0.5 }, { f: 392.00, d: 1.0 }, // A A G
+    { f: 349.23, d: 0.5 }, { f: 349.23, d: 0.5 }, { f: 329.63, d: 0.5 }, { f: 329.63, d: 0.5 }, // F F E E
+    { f: 293.66, d: 0.5 }, { f: 293.66, d: 0.5 }, { f: 261.63, d: 1.0 }, // D D C
+  ];
+
   private initCtx() {
     if (!this.ctx) {
       this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -85,6 +168,16 @@ class AudioService {
           case 'CYBERPUNK': return this.tuneCyberpunk;
           case 'CANDY': return this.tuneCandy;
           case 'OCEAN': return this.tuneOcean;
+          case 'ARCTIC': return this.tuneArctic;
+          case 'JUNGLE': return this.tuneJungle;
+          case 'SOCCER': return this.tuneSoccer;
+          case 'MAGMA': return this.tuneMagma;
+          case 'ANCIENT': return this.tuneAncient;
+          case 'DESERT': return this.tuneDesert;
+          case 'HEAVEN': return this.tuneHeaven;
+          case 'PARK': return this.tunePark;
+          case 'GARDEN': return this.tuneGarden;
+          case 'KINDERGARTEN': return this.tuneKindergarten;
           case 'INTERSTELLAR':
           default: return this.tuneInterstellar;
       }
@@ -139,6 +232,54 @@ class AudioService {
           gain.gain.setValueAtTime(0, now);
           gain.gain.linearRampToValueAtTime(0.2, now + duration / 2);
           gain.gain.linearRampToValueAtTime(0, now + duration);
+      } else if (this.currentTheme === 'ARCTIC') {
+          osc.type = 'sine'; // Pure tone
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.15, now + 0.05); // Quick attack
+          gain.gain.exponentialRampToValueAtTime(0.01, now + duration); // Bell-like decay
+      } else if (this.currentTheme === 'JUNGLE') {
+          osc.type = 'square'; // Wood-like / drum-like
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15); // Short percussive hits
+      } else if (this.currentTheme === 'SOCCER') {
+          osc.type = 'sawtooth'; // Brass-like
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.1, now + 0.05);
+          gain.gain.linearRampToValueAtTime(0.08, now + duration * 0.8);
+          gain.gain.linearRampToValueAtTime(0, now + duration);
+      } else if (this.currentTheme === 'MAGMA') {
+          osc.type = 'sawtooth'; // Heavy
+          gain.gain.setValueAtTime(0.1, now);
+          gain.gain.linearRampToValueAtTime(0.05, now + duration);
+          // Low pass filter simulation via gain drop
+      } else if (this.currentTheme === 'ANCIENT') {
+          osc.type = 'triangle'; // Plucked string
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.15, now + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+      } else if (this.currentTheme === 'DESERT') {
+          osc.type = 'square'; // Distorted guitar-ish
+          gain.gain.setValueAtTime(0.08, now);
+          gain.gain.linearRampToValueAtTime(0, now + duration);
+      } else if (this.currentTheme === 'HEAVEN') {
+          osc.type = 'sine'; // Organ/Harp
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.1, now + duration * 0.5);
+          gain.gain.linearRampToValueAtTime(0, now + duration);
+      } else if (this.currentTheme === 'PARK') {
+          osc.type = 'triangle'; // Piano-ish
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.12, now + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+      } else if (this.currentTheme === 'GARDEN') {
+          osc.type = 'square'; // Low fi 8bit style
+          gain.gain.setValueAtTime(0.05, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1); 
+      } else if (this.currentTheme === 'KINDERGARTEN') {
+          osc.type = 'triangle'; // Xylophone
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.1, now + 0.01); 
+          gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
       } else {
           // Space
           osc.type = 'sine';

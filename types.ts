@@ -15,7 +15,7 @@ export enum TileType {
   PLANE = 'PLANE'
 }
 
-export type ThemeType = 'INTERSTELLAR' | 'CYBERPUNK' | 'CANDY' | 'OCEAN';
+export type ThemeType = 'INTERSTELLAR' | 'CYBERPUNK' | 'CANDY' | 'OCEAN' | 'ARCTIC' | 'JUNGLE' | 'SOCCER' | 'MAGMA' | 'ANCIENT' | 'DESERT' | 'HEAVEN' | 'PARK' | 'GARDEN' | 'KINDERGARTEN';
 
 export enum ZoneType {
   // Generic mapping, names will be dynamic based on theme
@@ -39,7 +39,27 @@ export interface Decoration {
     // Candy
     'CANDY_CANE' | 'LOLLIPOP' | 'DONUT' | 'ICE_CREAM' |
     // Ocean
-    'CORAL' | 'BUBBLE' | 'JELLYFISH' | 'SUBMARINE';
+    'CORAL' | 'BUBBLE' | 'JELLYFISH' | 'SUBMARINE' |
+    // Arctic
+    'PENGUIN' | 'ICE_CRYSTAL' | 'IGLOO' | 'SNOWMAN' |
+    // Jungle
+    'PALM_TREE' | 'VINE' | 'TOTEM' | 'FLOWER' |
+    // Soccer
+    'SOCCER_BALL' | 'FLAG' | 'TROPHY' | 'GOAL_POST' |
+    // Magma
+    'FIRE_PILLAR' | 'LAVA_POOL' | 'CHAIN' | 'SKULL' |
+    // Ancient
+    'LANTERN' | 'CHERRY_BLOSSOM' | 'SCREEN' | 'GATE' |
+    // Desert
+    'CACTUS' | 'BONE' | 'TUMBLEWEED' | 'OIL_BARREL' |
+    // Heaven
+    'CLOUD_PLATFORM' | 'HARP' | 'WING_STATUE' | 'GOLD_ARCH' |
+    // Park
+    'FOUNTAIN' | 'BENCH' | 'BUSH_SCULPTURE' | 'LAMP_POST' |
+    // Garden
+    'BROCCOLI' | 'SCARECROW' | 'TOMATO' | 'SPRINKLER' |
+    // Kindergarten
+    'BLOCKS' | 'CRAYON' | 'ROCKING_HORSE' | 'LOCKER';
   x: number;
   y: number; // Screen coordinates
   gridX: number;
