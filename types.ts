@@ -11,11 +11,10 @@ export enum TileType {
   BOOST = 'BOOST',
   PENALTY = 'PENALTY',
   STORY = 'STORY',
-  SHORTCUT = 'SHORTCUT',
-  PLANE = 'PLANE'
+  SHORTCUT = 'SHORTCUT'
 }
 
-export type ThemeType = 'INTERSTELLAR' | 'CYBERPUNK' | 'CANDY' | 'OCEAN' | 'ARCTIC' | 'JUNGLE' | 'SOCCER' | 'MAGMA' | 'ANCIENT' | 'DESERT' | 'HEAVEN' | 'PARK' | 'GARDEN' | 'KINDERGARTEN';
+export type ThemeType = 'INTERSTELLAR' | 'CYBERPUNK' | 'CANDY' | 'OCEAN' | 'ARCTIC' | 'JUNGLE' | 'SOCCER' | 'MAGMA' | 'ANCIENT' | 'DESERT' | 'HEAVEN' | 'PARK' | 'GARDEN' | 'KINDERGARTEN' | 'KITCHEN' | 'BALCONY' | 'AMUSEMENT_PARK' | 'FAMILY' | 'MARKET';
 
 export enum ZoneType {
   // Generic mapping, names will be dynamic based on theme
@@ -59,7 +58,17 @@ export interface Decoration {
     // Garden
     'BROCCOLI' | 'SCARECROW' | 'TOMATO' | 'SPRINKLER' |
     // Kindergarten
-    'BLOCKS' | 'CRAYON' | 'ROCKING_HORSE' | 'LOCKER';
+    'BLOCKS' | 'CRAYON' | 'ROCKING_HORSE' | 'LOCKER' |
+    // Kitchen
+    'PAN' | 'PEPPER_MILL' | 'HONEY_POT' | 'OVEN' | 'TOASTER' | 'CUTLERY' | 'CHEF_HAT' | 'STACK_PLATES' |
+    // Balcony
+    'CACTUS_POT' | 'CLOTHES_RACK' | 'WIND_CHIME' | 'WATERING_CAN' | 'SUCCULENT' | 'PIGEON' | 'HAMMOCK' | 'PAPER_PLANE' |
+    // Amusement Park
+    'POPCORN' | 'CAROUSEL' | 'CIRCUS_TENT' | 'BALLOONS' | 'FERRIS_WHEEL' | 'COASTER_TRACK' | 'BUMPER_CAR' |
+    // Family
+    'TELEVISION' | 'SOFA' | 'RUG' | 'CHAIR' | 'TEA_TRAY' | 'LAMP' | 'BOOKSHELF' | 'PLANT_POT' |
+    // Market
+    'VEGETABLES' | 'MEAT' | 'CORN' | 'POTATO' | 'STALL' | 'BASKET' | 'SCALE' | 'SIGN';
   x: number;
   y: number; // Screen coordinates
   gridX: number;
@@ -79,6 +88,7 @@ export interface Tile {
   description?: string;
   decorations?: Decoration[];
   shortcutTargetId?: number;
+  icon?: string; // Display icon for the tile (emoji)
 }
 
 export interface Player {

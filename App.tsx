@@ -5,6 +5,7 @@ import { GamePhase, GameState, TileType, TOTAL_TILES, Player, CharacterType, The
 // import { generateStorySegment } from './services/gemini'; // Removed Gemini import
 import { audioManager } from './services/audio';
 import { CarAvatar } from './components/CarAvatar';
+import { Dice3D } from './components/Dice3D';
 import { getFlavorText } from './utils/flavorText';
 
 const AVATAR_OPTIONS: CharacterType[] = ['Panda', 'Dolphin', 'Fox', 'Cat', 'Bear', 'Rabbit', 'Snow Fox', 'Polar Bear'];
@@ -25,6 +26,11 @@ const THEMES: { id: ThemeType; name: string; desc: string; color: string }[] = [
     { id: 'PARK', name: 'Relaxing Park', desc: 'Gardens to Picnic Area', color: '#4ade80' },
     { id: 'GARDEN', name: 'Vegetable Garden', desc: 'Giant Broccoli to Pumpkin Patch', color: '#65a30d' },
     { id: 'KINDERGARTEN', name: 'Happy Kindergarten', desc: 'Toy Castle to Nap Room', color: '#fbbf24' },
+    { id: 'KITCHEN', name: 'Crazy Kitchen', desc: 'Prep Counter to Dessert Peak', color: '#f97316' },
+    { id: 'BALCONY', name: 'Sunny Balcony', desc: 'Potted Jungle to City Skyline', color: '#facc15' },
+    { id: 'AMUSEMENT_PARK', name: 'Fantasy Park', desc: 'Carousel to Ferris Wheel', color: '#e11d48' },
+    { id: 'FAMILY', name: 'Cozy Family Home', desc: 'Living Room to Bedroom', color: '#b45309' },
+    { id: 'MARKET', name: 'Bustling Market', desc: 'Fresh Produce to Butcher Shop', color: '#f59e0b' },
 ];
 
 export default function App() {
@@ -52,15 +58,9 @@ export default function App() {
   });
 
   const [lastDiceRoll, setLastDiceRoll] = useState<number | null>(null);
+  const [isDiceRolling, setIsDiceRolling] = useState(false);
   const [storyText, setStoryText] = useState<string | null>(null);
   
-  // Animation state for the Plane event
-  const [flyingAnimation, setFlyingAnimation] = useState<{
-    playerId: number;
-    startTileId: number;
-    endTileId: number;
-  } | null>(null);
-
   const activePlayer = gameState.players[gameState.activePlayerIndex];
 
   // -- Setup Helpers --
@@ -121,7 +121,6 @@ export default function App() {
     setTiles(generateMap(selectedTheme));
     setLastDiceRoll(null);
     setStoryText(null);
-    setFlyingAnimation(null);
     setPhase(GamePhase.SETUP);
   };
 
@@ -129,7 +128,6 @@ export default function App() {
       // Clean reset logic
       setLastDiceRoll(null);
       setStoryText(null);
-      setFlyingAnimation(null);
       audioManager.stopBGM();
       
       // We set phase directly. The component will re-render showing the Start Page.
@@ -159,10 +157,10 @@ export default function App() {
 
   const handleRollDice = useCallback(async () => {
     // strict guard
-    if (gameState.isMoving || phase !== GamePhase.PLAYING || processingRef.current || flyingAnimation) return;
+    if (gameState.isMoving || isDiceRolling || phase !== GamePhase.PLAYING || processingRef.current) return;
     processingRef.current = true;
     
-    // Check frozen status
+    // Check frozen status - Legacy property, mostly unused now as FREEZE event is positive
     if (activePlayer.frozen) {
        setGameState(prev => ({
          ...prev,
@@ -173,7 +171,11 @@ export default function App() {
        return;
     }
 
-    // Default Roll
+    // Start Dice Animation
+    setIsDiceRolling(true);
+    audioManager.playSFX('roll');
+
+    // Default Roll Calculation
     let roll = Math.floor(Math.random() * 6) + 1;
     
     // Hack: 'yoyo' cheat to increase chance of higher numbers
@@ -183,82 +185,65 @@ export default function App() {
         roll = Math.max(roll, cheatRoll);
     }
 
-    setLastDiceRoll(roll);
-    audioManager.playSFX('roll');
-    
-    setGameState(prev => ({ ...prev, isMoving: true }));
+    // Delay movement to allow animation to play
+    setTimeout(() => {
+        setIsDiceRolling(false);
+        setLastDiceRoll(roll);
+        
+        setGameState(prev => ({ ...prev, isMoving: true }));
 
-    // Animate movement
-    let currentStep = 0;
-    const startPos = activePlayer.position;
-    
-    // 400ms interval to match CSS transition
-    const moveInterval = setInterval(async () => {
-       currentStep++;
-       const nextPos = Math.min(startPos + currentStep, TOTAL_TILES - 1);
-       audioManager.playSFX('step');
-       
-       setGameState(prev => ({
-         ...prev,
-         players: prev.players.map(p => p.id === activePlayer.id ? { ...p, position: nextPos } : p)
-       }));
+        // Animate movement
+        let currentStep = 0;
+        const startPos = activePlayer.position;
+        
+        // 400ms interval to match CSS transition
+        const moveInterval = setInterval(async () => {
+           currentStep++;
+           const nextPos = Math.min(startPos + currentStep, TOTAL_TILES - 1);
+           audioManager.playSFX('step');
+           
+           setGameState(prev => ({
+             ...prev,
+             players: prev.players.map(p => p.id === activePlayer.id ? { ...p, position: nextPos } : p)
+           }));
 
-       if (currentStep >= roll || nextPos === TOTAL_TILES - 1) {
-         clearInterval(moveInterval);
-         await handleArrival(nextPos);
-       }
-    }, 400);
+           if (currentStep >= roll || nextPos === TOTAL_TILES - 1) {
+             clearInterval(moveInterval);
+             await handleArrival(nextPos, roll);
+           }
+        }, 400);
+    }, 1000); // 1s dice roll animation
 
-  }, [gameState.isMoving, activePlayer, phase, nextTurn, flyingAnimation]);
+  }, [gameState.isMoving, isDiceRolling, activePlayer, phase, nextTurn]);
 
-  const handleArrival = async (pos: number) => {
+  const handleArrival = async (pos: number, rollAmount: number) => {
     const tile = tiles[pos];
     const currentPlayer = gameState.players[gameState.activePlayerIndex];
     
-    let newHistory = [`${currentPlayer.name} rolled ${lastDiceRoll}. Landed on ${pos + 1}.`]; // +1 for display
+    let newHistory = [`${currentPlayer.name} rolled ${rollAmount}. Landed on ${pos + 1}.`]; // +1 for display
     let newFrozen = false;
     let effectPos = pos;
-    let delayBeforeNext = 1000;
+    let grantExtraTurn = false;
 
     // Logic
     if (tile.type === TileType.BOOST) {
       effectPos = Math.min(pos + 3, TOTAL_TILES - 1);
-      newHistory.push(getFlavorText(TileType.BOOST, currentPlayer.character, currentPlayer.name, selectedTheme));
+      newHistory.push(getFlavorText(TileType.BOOST, currentPlayer.character, currentPlayer.name, selectedTheme, tile.icon));
       audioManager.playSFX('boost');
     } else if (tile.type === TileType.PENALTY) {
-      effectPos = Math.max(pos - 3, 0);
-      newHistory.push(getFlavorText(TileType.PENALTY, currentPlayer.character, currentPlayer.name, selectedTheme));
-      audioManager.playSFX('penalty');
+      // CHANGED: Penalty now moves forward 2 steps instead of backward
+      effectPos = Math.min(pos + 2, TOTAL_TILES - 1);
+      newHistory.push(getFlavorText(TileType.PENALTY, currentPlayer.character, currentPlayer.name, selectedTheme, tile.icon));
+      audioManager.playSFX('boost'); // Use happy sound
     } else if (tile.type === TileType.FREEZE) {
-      newFrozen = true;
-      newHistory.push(getFlavorText(TileType.FREEZE, currentPlayer.character, currentPlayer.name, selectedTheme));
-      audioManager.playSFX('freeze');
+      // CHANGED: Freeze now grants an extra turn instead of skipping
+      grantExtraTurn = true;
+      newHistory.push(getFlavorText(TileType.FREEZE, currentPlayer.character, currentPlayer.name, selectedTheme, tile.icon));
+      audioManager.playSFX('win'); // Use bonus sound
     } else if (tile.type === TileType.SHORTCUT && tile.shortcutTargetId) {
       effectPos = tile.shortcutTargetId;
-      newHistory.push(getFlavorText(TileType.SHORTCUT, currentPlayer.character, currentPlayer.name, selectedTheme));
+      newHistory.push(getFlavorText(TileType.SHORTCUT, currentPlayer.character, currentPlayer.name, selectedTheme, tile.icon));
       audioManager.playSFX('boost');
-    } else if (tile.type === TileType.PLANE && tile.shortcutTargetId) {
-       // Special Plane Logic
-      //  newHistory.push(getFlavorText(TileType.PLANE, currentPlayer.character, currentPlayer.name, selectedTheme));
-       
-      //  // Trigger Animation State
-      //  setFlyingAnimation({
-      //      playerId: currentPlayer.id,
-      //      startTileId: pos,
-      //      endTileId: tile.shortcutTargetId
-      //  });
-       
-      //  // REMOVED audioManager.playSFX('plane'); here as requested
-
-      //  // Pause execution for animation duration (3s)
-      //  // We return early from the normal update flow, then execute the landing update after timeout
-      //  setTimeout(() => {
-      //      setFlyingAnimation(null);
-      //      finishArrival(tile.shortcutTargetId!, newFrozen, newHistory, currentPlayer.id);
-      //  }, 3000);
-
-       // Don't execute the standard update yet
-       return;
     }
 
     // Apply secondary movement for standard tiles immediately
@@ -269,11 +254,11 @@ export default function App() {
        }));
     }
 
-    finishArrival(effectPos, newFrozen, newHistory, currentPlayer.id);
+    finishArrival(effectPos, newFrozen, newHistory, currentPlayer.id, grantExtraTurn);
   };
 
   // Factored out final state update to support delayed events like the Plane
-  const finishArrival = (finalPos: number, isFrozen: boolean, historyLogs: string[], playerId: number) => {
+  const finishArrival = (finalPos: number, isFrozen: boolean, historyLogs: string[], playerId: number, grantExtraTurn: boolean = false) => {
     const tile = tiles[finalPos];
     
     // Story text logic
@@ -306,7 +291,13 @@ export default function App() {
       setGameState(prev => ({ ...prev, history: [...prev.history, ...historyLogs] }));
       processingRef.current = false;
     } else {
-      setTimeout(nextTurn, 1000); 
+      if (grantExtraTurn) {
+          // Allow current player to roll again immediately
+          processingRef.current = false;
+          // Optionally you could add a visual cue here, but enabling the button is enough
+      } else {
+          setTimeout(nextTurn, 1000); 
+      }
     }
   };
 
@@ -368,6 +359,11 @@ export default function App() {
                                     {t.id === 'PARK' && '🌳'}
                                     {t.id === 'GARDEN' && '🥕'}
                                     {t.id === 'KINDERGARTEN' && '🎒'}
+                                    {t.id === 'KITCHEN' && '🍳'}
+                                    {t.id === 'BALCONY' && '🪴'}
+                                    {t.id === 'AMUSEMENT_PARK' && '🎡'}
+                                    {t.id === 'FAMILY' && '🏠'}
+                                    {t.id === 'MARKET' && '🏪'}
                                 </div>
                                 <div>
                                     <div className="font-black text-lg text-slate-700">{t.name}</div>
@@ -500,7 +496,6 @@ export default function App() {
                 players={gameState.players} 
                 activePlayerId={activePlayer?.id || 0} 
                 theme={selectedTheme}
-                flyingAnimation={flyingAnimation}
             />
             
             {/* Story Overlay - 3D Card Style, now positioned relative to game area */}
@@ -539,36 +534,28 @@ export default function App() {
                     ))}
                  </div>
 
-                 {/* DICE BUTTON - 3D Cube Style */}
-                 <button
-                    onClick={handleRollDice}
-                    disabled={gameState.isMoving || processingRef.current || !!flyingAnimation || !activePlayer}
-                    className={`relative w-28 h-28 md:w-40 md:h-40 rounded-[1.5rem] md:rounded-[2rem] flex flex-col items-center justify-center transition-all transform active:scale-95 group border-b-[8px] md:border-b-[12px] border-r-[4px] md:border-r-[6px] ${
-                       (gameState.isMoving || processingRef.current || !!flyingAnimation || !activePlayer)
-                       ? 'bg-slate-100 border-slate-300 text-slate-300 cursor-not-allowed translate-y-[8px] md:translate-y-[12px] border-b-0 shadow-inner' 
-                       : 'bg-white border-slate-200 hover:bg-sky-50 hover:border-sky-200 hover:-translate-y-1 shadow-xl active:translate-y-[8px] md:active:translate-y-[12px] active:border-b-0 active:shadow-none'
-                    }`}
-                  >
-                    {/* Decorative Dice Dots (Inset) */}
-                    <div className="absolute top-3 left-3 w-3 h-3 bg-slate-100 rounded-full shadow-inner"></div>
-                    <div className="absolute top-3 right-3 w-3 h-3 bg-slate-100 rounded-full shadow-inner"></div>
-                    <div className="absolute bottom-3 left-3 w-3 h-3 bg-slate-100 rounded-full shadow-inner"></div>
-                    <div className="absolute bottom-3 right-3 w-3 h-3 bg-slate-100 rounded-full shadow-inner"></div>
-
-                    <span className="text-4xl md:text-5xl font-black text-slate-800 z-10 drop-shadow-sm group-hover:scale-110 transition-transform">{gameState.isMoving ? '...' : (flyingAnimation ? '✈️' : 'ROLL')}</span>
-                    {activePlayer && (
-                        <span className="text-[9px] md:text-[10px] text-slate-400 mt-1 md:mt-2 font-black uppercase tracking-widest bg-slate-100 px-2 md:px-3 py-0.5 md:py-1 rounded-full flex items-center gap-1 md:gap-2">
-                        <div className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full" style={{background: activePlayer.color}}></div>
-                        {activePlayer.name}
+                 {/* DICE COMPONENT (Replaces Button) */}
+                 <div className="relative flex flex-col items-center justify-center scale-90 md:scale-100">
+                    <Dice3D 
+                        value={lastDiceRoll} 
+                        rolling={isDiceRolling}
+                        onClick={handleRollDice}
+                        disabled={gameState.isMoving || processingRef.current || !activePlayer}
+                    />
+                    
+                    {/* Floating Label */}
+                    <div className="mt-4 text-center pointer-events-none">
+                        <span className={`text-2xl font-black transition-all ${isDiceRolling ? 'text-slate-400 scale-90' : 'text-slate-700 scale-100'}`}>
+                            {isDiceRolling ? 'Rolling...' : (lastDiceRoll ? `Rolled ${lastDiceRoll}!` : 'Roll Dice')}
                         </span>
-                    )}
-                 </button>
-
-                 {lastDiceRoll && !gameState.isMoving && !processingRef.current && !flyingAnimation && (
-                     <div className="absolute top-1/2 right-2 md:right-4 -translate-y-1/2 w-12 h-12 md:w-16 md:h-16 bg-yellow-400 text-white rounded-xl md:rounded-2xl flex items-center justify-center font-black text-2xl md:text-3xl shadow-[0_5px_15px_rgba(250,204,21,0.4)] border-b-4 md:border-b-8 border-yellow-600 rotate-12 animate-in zoom-in spin-in-12 z-20">
-                       {lastDiceRoll}
-                     </div>
-                  )}
+                        {activePlayer && (
+                            <div className="flex items-center justify-center gap-2 mt-1">
+                                <div className="w-2 h-2 rounded-full" style={{background: activePlayer.color}}></div>
+                                <span className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{activePlayer.name}'s Turn</span>
+                            </div>
+                        )}
+                    </div>
+                 </div>
               </>
             )}
           </div>

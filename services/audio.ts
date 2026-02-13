@@ -129,6 +129,52 @@ class AudioService {
     { f: 293.66, d: 0.5 }, { f: 293.66, d: 0.5 }, { f: 261.63, d: 1.0 }, // D D C
   ];
 
+  // 15. Kitchen: Bossa Nova style (Major 7ths), Relaxed but bouncy
+  // Dmaj7: D(293) F#(370) A(440) C#(554)
+  // Gmaj7: G(392) B(493) D(587) F#(740)
+  private tuneKitchen = [
+    { f: 293.66, d: 0.5 }, { f: 440.00, d: 0.5 }, { f: 554.37, d: 0.5 }, { f: 370.00, d: 0.5 }, // Dmaj7 arp
+    { f: 392.00, d: 0.5 }, { f: 493.88, d: 0.5 }, { f: 587.33, d: 0.5 }, { f: 739.99, d: 0.5 }, // Gmaj7 arp
+    { f: 554.37, d: 0.25 }, { f: 440.00, d: 0.25 }, { f: 370.00, d: 0.5 }, // C# A F#
+    { f: 293.66, d: 1.5 }, // D
+  ];
+
+  // 16. Balcony: Lazy Lofi Guitar, slow, repetitive, warm
+  // Cmaj9: C E G B D
+  // Fmaj7: F A C E
+  private tuneBalcony = [
+    { f: 261.63, d: 1.0 }, { f: 329.63, d: 0.5 }, { f: 493.88, d: 0.5 }, { f: 587.33, d: 2.0 }, // C E B D
+    { f: 349.23, d: 1.0 }, { f: 440.00, d: 0.5 }, { f: 523.25, d: 0.5 }, { f: 659.25, d: 2.0 }, // F A C E
+    { f: 329.63, d: 0.5 }, { f: 392.00, d: 0.5 }, { f: 329.63, d: 1.0 }, // E G E
+  ];
+
+  // 17. Amusement Park: Electro Swing / Upbeat Carnival
+  // Swing rhythm (Long Short), Pentatonic + Chromatic
+  // C Major: C D E G A
+  private tuneAmusement = [
+    { f: 523.25, d: 0.6 }, { f: 392.00, d: 0.2 }, { f: 329.63, d: 0.6 }, { f: 392.00, d: 0.2 }, // C G E G (Swing)
+    { f: 440.00, d: 0.6 }, { f: 392.00, d: 0.2 }, { f: 329.63, d: 0.4 }, { f: 293.66, d: 0.4 }, // A G E D
+    { f: 261.63, d: 0.6 }, { f: 293.66, d: 0.2 }, { f: 329.63, d: 0.6 }, { f: 392.00, d: 0.2 }, // C D E G
+    { f: 523.25, d: 0.4 }, { f: 587.33, d: 0.4 }, { f: 659.25, d: 0.4 }, { f: 783.99, d: 0.4 }, // C D E G (Run up)
+  ];
+
+  // 18. Family: Soft, Lullaby-like, Acoustic Guitar/Piano feel
+  // C Major simple melody
+  private tuneFamily = [
+    { f: 261.63, d: 1.0 }, { f: 329.63, d: 1.0 }, { f: 392.00, d: 1.0 }, { f: 523.25, d: 2.0 }, // C E G C
+    { f: 440.00, d: 1.0 }, { f: 392.00, d: 1.0 }, { f: 329.63, d: 1.0 }, { f: 293.66, d: 1.0 }, // A G E D
+    { f: 261.63, d: 2.0 }, { f: 0, d: 0.5 },
+    { f: 329.63, d: 0.5 }, { f: 392.00, d: 0.5 }, { f: 261.63, d: 1.0 }, // E G C
+  ];
+
+  // 19. Market: Busy, Fast, Staccato (Accordion/Polka feel)
+  private tuneMarket = [
+    { f: 392.00, d: 0.25 }, { f: 523.25, d: 0.25 }, { f: 659.25, d: 0.25 }, { f: 783.99, d: 0.25 }, // G C E G
+    { f: 392.00, d: 0.5 }, { f: 392.00, d: 0.5 }, // G G
+    { f: 349.23, d: 0.25 }, { f: 440.00, d: 0.25 }, { f: 587.33, d: 0.25 }, { f: 698.46, d: 0.25 }, // F A D F
+    { f: 349.23, d: 0.5 }, { f: 349.23, d: 0.5 }, // F F
+  ];
+
   private initCtx() {
     if (!this.ctx) {
       this.ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -178,6 +224,11 @@ class AudioService {
           case 'PARK': return this.tunePark;
           case 'GARDEN': return this.tuneGarden;
           case 'KINDERGARTEN': return this.tuneKindergarten;
+          case 'KITCHEN': return this.tuneKitchen;
+          case 'BALCONY': return this.tuneBalcony;
+          case 'AMUSEMENT_PARK': return this.tuneAmusement;
+          case 'FAMILY': return this.tuneFamily;
+          case 'MARKET': return this.tuneMarket;
           case 'INTERSTELLAR':
           default: return this.tuneInterstellar;
       }
@@ -280,6 +331,32 @@ class AudioService {
           gain.gain.setValueAtTime(0, now);
           gain.gain.linearRampToValueAtTime(0.1, now + 0.01); 
           gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+      } else if (this.currentTheme === 'KITCHEN') {
+          osc.type = 'triangle'; // Electric Piano (Rhodes-ish)
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.15, now + 0.02); // Soft attack
+          gain.gain.exponentialRampToValueAtTime(0.01, now + duration); // Warm decay
+      } else if (this.currentTheme === 'BALCONY') {
+          osc.type = 'triangle'; // Acoustic Guitar pluck
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.15, now + 0.01); // Sharp attack
+          gain.gain.exponentialRampToValueAtTime(0.01, now + duration); // Pluck decay
+      } else if (this.currentTheme === 'AMUSEMENT_PARK') {
+          osc.type = 'sawtooth'; // Brass / Synth Lead
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.1, now + 0.05); // Punchy attack
+          gain.gain.exponentialRampToValueAtTime(0.01, now + duration); 
+      } else if (this.currentTheme === 'FAMILY') {
+          osc.type = 'triangle'; // Very soft acoustic
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.12, now + 0.05);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + duration);
+      } else if (this.currentTheme === 'MARKET') {
+          osc.type = 'square'; // Accordion-ish
+          gain.gain.setValueAtTime(0, now);
+          gain.gain.linearRampToValueAtTime(0.1, now + 0.05);
+          gain.gain.linearRampToValueAtTime(0.08, now + duration * 0.8);
+          gain.gain.linearRampToValueAtTime(0, now + duration);
       } else {
           // Space
           osc.type = 'sine';
@@ -294,7 +371,7 @@ class AudioService {
       osc.stop(now + duration);
   }
 
-  public playSFX(type: 'roll' | 'step' | 'boost' | 'penalty' | 'freeze' | 'win' | 'plane') {
+  public playSFX(type: 'roll' | 'step' | 'boost' | 'penalty' | 'freeze' | 'win') {
     if (this.isMuted) return;
     this.initCtx();
     if (!this.ctx) return;
@@ -348,24 +425,6 @@ class AudioService {
         gain.gain.setValueAtTime(0.3, now);
         osc.start(now);
         osc.stop(now + 0.5);
-        break;
-      case 'plane':
-        const osc2 = this.ctx.createOscillator();
-        osc2.connect(gain);
-        osc.type = 'sawtooth';
-        osc2.type = 'square';
-        osc.frequency.setValueAtTime(50, now);
-        osc.frequency.exponentialRampToValueAtTime(400, now + 2.5);
-        osc2.frequency.setValueAtTime(60, now);
-        osc2.frequency.exponentialRampToValueAtTime(300, now + 2.5);
-        gain.gain.setValueAtTime(0, now);
-        gain.gain.linearRampToValueAtTime(0.3, now + 0.5); 
-        gain.gain.setValueAtTime(0.3, now + 2.0);
-        gain.gain.linearRampToValueAtTime(0, now + 3.0); 
-        osc.start(now);
-        osc.stop(now + 3.0);
-        osc2.start(now);
-        osc2.stop(now + 3.0);
         break;
       case 'win':
         [523.25, 659.25, 783.99, 1046.50].forEach((f, i) => {

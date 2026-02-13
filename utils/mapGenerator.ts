@@ -1,4 +1,5 @@
 import { Tile, TileType, TOTAL_TILES, Decoration, ThemeType } from '../types';
+import { getTileIcon } from './flavorText';
 
 const ISO_WIDTH = 120;  
 const ISO_HEIGHT = 60; 
@@ -77,6 +78,31 @@ const getZoneName = (theme: ThemeType, zoneIdx: number): string => {
     if (zoneIdx === 2) return 'Nap Room';
     if (zoneIdx === 3) return 'Art Corner';
     return 'Toy Castle';
+  } else if (theme === 'KITCHEN') {
+    if (zoneIdx === 1) return 'Prep Counter';
+    if (zoneIdx === 2) return 'Sizzling Grill';
+    if (zoneIdx === 3) return 'Dessert Peak';
+    return 'Sink Valley';
+  } else if (theme === 'BALCONY') {
+    if (zoneIdx === 1) return 'Succulent Shelf';
+    if (zoneIdx === 2) return 'Laundry Line';
+    if (zoneIdx === 3) return 'Railing Edge';
+    return 'Potted Jungle';
+  } else if (theme === 'AMUSEMENT_PARK') {
+    if (zoneIdx === 1) return 'Carousel Base';
+    if (zoneIdx === 2) return 'Food Court';
+    if (zoneIdx === 3) return 'Coaster Tracks';
+    return 'Ticket Booth';
+  } else if (theme === 'FAMILY') {
+    if (zoneIdx === 1) return 'Living Room';
+    if (zoneIdx === 2) return 'Dining Area';
+    if (zoneIdx === 3) return 'Bedroom';
+    return 'Entry Hall';
+  } else if (theme === 'MARKET') {
+    if (zoneIdx === 1) return 'Veggie Lane';
+    if (zoneIdx === 2) return 'Butcher Block';
+    if (zoneIdx === 3) return 'Grain Silo';
+    return 'Market Entrance';
   }
   return `Zone ${zoneIdx}`;
 }
@@ -126,14 +152,17 @@ export const generateMap = (theme: ThemeType = 'INTERSTELLAR'): Tile[] => {
            type = TileType.NORMAL;
         } else {
            const rand = Math.random();
-           // Reduced probabilities for negative events
            // Boost: ~8%, Penalty: ~2%, Freeze: ~2%
-           if (rand < 0.08) { type = TileType.BOOST; description = "Boost!"; }
-           else if (rand < 0.10) { type = TileType.PENALTY; description = "Oops!"; }
-           else if (rand < 0.12) { type = TileType.FREEZE; description = "Sleep"; }
+           // Replaced negative descriptions with positive ones as requested
+           if (rand < 0.08) { type = TileType.BOOST; description = "Boost +3"; }
+           else if (rand < 0.10) { type = TileType.PENALTY; description = "Dash +2"; } // Replaced "Oops!"
+           else if (rand < 0.12) { type = TileType.FREEZE; description = "Roll Again"; } // Replaced "Sleep"
         }
     }
     if (!description) description = `${zoneName}`;
+
+    // Get Icon from centralized logic
+    const icon = getTileIcon(type, theme);
 
     tiles.push({
       id: i,
@@ -144,6 +173,7 @@ export const generateMap = (theme: ThemeType = 'INTERSTELLAR'): Tile[] => {
       gridY,
       zone: zoneName,
       description,
+      icon,
       decorations: [] // Initialize empty
     });
 
@@ -294,6 +324,54 @@ export const generateMap = (theme: ThemeType = 'INTERSTELLAR'): Tile[] => {
                  else if (r < 0.5) { decoType = 'CRAYON'; decoColor = getRandom(['#ef4444', '#3b82f6', '#facc15']); }
                  else if (r < 0.7) decoType = 'ROCKING_HORSE';
                  else decoType = 'LOCKER';
+             } else if (theme === 'KITCHEN') {
+                 const r = Math.random();
+                 if (r < 0.25) { decoType = 'PAN'; decoColor = getRandom(['#1f2937', '#64748b']); }
+                 else if (r < 0.45) decoType = 'PEPPER_MILL';
+                 else if (r < 0.6) { decoType = 'HONEY_POT'; decoColor = '#f59e0b'; }
+                 else if (r < 0.7) decoType = 'OVEN';
+                 else if (r < 0.8) decoType = 'TOASTER';
+                 else if (r < 0.9) decoType = 'CUTLERY';
+                 else if (r < 0.95) decoType = 'CHEF_HAT';
+                 else decoType = 'STACK_PLATES';
+             } else if (theme === 'BALCONY') {
+                 const r = Math.random();
+                 if (r < 0.25) { decoType = 'CACTUS_POT'; decoColor = '#16a34a'; }
+                 else if (r < 0.45) { decoType = 'CLOTHES_RACK'; }
+                 else if (r < 0.6) { decoType = 'WIND_CHIME'; }
+                 else if (r < 0.7) { decoType = 'WATERING_CAN'; decoColor = getRandom(['#22c55e', '#3b82f6', '#ef4444']); }
+                 else if (r < 0.8) { decoType = 'SUCCULENT'; decoColor = getRandom(['#86efac', '#c4b5fd']); }
+                 else if (r < 0.9) { decoType = 'PIGEON'; }
+                 else if (r < 0.95) { decoType = 'HAMMOCK'; }
+                 else { decoType = 'PAPER_PLANE'; }
+             } else if (theme === 'AMUSEMENT_PARK') {
+                 const r = Math.random();
+                 if (r < 0.2) decoType = 'POPCORN';
+                 else if (r < 0.4) decoType = 'BALLOONS';
+                 else if (r < 0.6) decoType = 'BUMPER_CAR';
+                 else if (r < 0.7) decoType = 'CIRCUS_TENT';
+                 else if (r < 0.85) decoType = 'COASTER_TRACK';
+                 else if (r < 0.95) decoType = 'CAROUSEL';
+                 else decoType = 'FERRIS_WHEEL';
+             } else if (theme === 'FAMILY') {
+                 const r = Math.random();
+                 if (r < 0.2) decoType = 'TELEVISION';
+                 else if (r < 0.4) { decoType = 'SOFA'; decoColor = getRandom(['#b91c1c', '#1e3a8a', '#15803d']); }
+                 else if (r < 0.55) { decoType = 'RUG'; decoColor = getRandom(['#fca5a5', '#93c5fd', '#fde047']); }
+                 else if (r < 0.7) decoType = 'CHAIR';
+                 else if (r < 0.8) decoType = 'TEA_TRAY';
+                 else if (r < 0.9) decoType = 'LAMP';
+                 else decoType = 'BOOKSHELF';
+             } else if (theme === 'MARKET') {
+                 const r = Math.random();
+                 if (r < 0.2) decoType = 'VEGETABLES';
+                 else if (r < 0.4) decoType = 'MEAT';
+                 else if (r < 0.55) decoType = 'CORN';
+                 else if (r < 0.7) decoType = 'POTATO';
+                 else if (r < 0.8) decoType = 'STALL';
+                 else if (r < 0.9) decoType = 'BASKET';
+                 else if (r < 0.95) decoType = 'SCALE';
+                 else decoType = 'SIGN';
              }
 
              tile.decorations = tile.decorations || [];
@@ -321,32 +399,28 @@ export const generateMap = (theme: ThemeType = 'INTERSTELLAR'): Tile[] => {
       const idx = Math.floor(Math.random() * (tiles.length - 20)) + 5;
       
       if(tiles[idx].type === TileType.NORMAL) {
-           const jump = Math.floor(Math.random() * 8) + 5; // Longer jumps for larger map
+           // For Fantasy Park, make one really long jump (Roller Coaster)
+           let jump = Math.floor(Math.random() * 8) + 5; 
+           if (theme === 'AMUSEMENT_PARK' && shortcutsAdded === 0) {
+               jump = 35; // Special long jump
+           }
+
            const target = idx + jump;
            
            if(target < tiles.length - 2 && tiles[target].type === TileType.NORMAL) {
                tiles[idx].type = TileType.SHORTCUT;
                tiles[idx].shortcutTargetId = target;
                tiles[idx].description = "Shortcut!";
+               
+               if (theme === 'AMUSEMENT_PARK' && jump >= 30) {
+                   tiles[idx].description = "Coaster Warp!";
+               }
+               
+               // Assign Shortcut Icon here since type changed
+               tiles[idx].icon = getTileIcon(TileType.SHORTCUT, theme);
+               
                shortcutsAdded++;
            }
-      }
-  }
-
-  // --- PASS 4: Add ONE Plane Tile ---
-  let planeAdded = false;
-  attempts = 0;
-  while (!planeAdded && attempts < 100) {
-      attempts++;
-      // Place it somewhat in the middle of the game for best effect (between 30% and 70%)
-      const idx = Math.floor(Math.random() * (tiles.length * 0.4)) + Math.floor(tiles.length * 0.3);
-      
-      // Ensure target is valid
-      if (tiles[idx].type === TileType.NORMAL && (idx + 25) < tiles.length - 2) {
-          tiles[idx].type = TileType.PLANE;
-          tiles[idx].description = "Airport";
-          tiles[idx].shortcutTargetId = idx + 25; 
-          planeAdded = true;
       }
   }
   

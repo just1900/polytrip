@@ -14,67 +14,6 @@ interface GameBoardProps {
   } | null;
 }
 
-// Cinematic Flight Animation Overlay
-const FlightOverlay = ({ start, end, players, playerId }: { start: Tile, end: Tile, players: Player[], playerId: number }) => {
-    const player = players.find(p => p.id === playerId);
-    if (!player) return null;
-
-    // Calculate path
-    const dx = end.x - start.x;
-    const dy = end.y - start.y;
-    const midX = (start.x + end.x) / 2;
-    const midY = (start.y + end.y) / 2 - 600; 
-
-    return (
-        <g className="pointer-events-none" style={{ zIndex: 9999 }}>
-            <circle r="40" fill="rgba(0,0,0,0.3)" filter="blur(10px)">
-                <animateMotion 
-                    dur="3s" 
-                    repeatCount="1"
-                    fill="freeze"
-                    path={`M${start.x} ${start.y} Q${midX} ${(start.y + end.y) / 2} ${end.x} ${end.y}`} 
-                    keyPoints="0;1"
-                    keyTimes="0;1"
-                    calcMode="linear"
-                />
-            </circle>
-
-            <g>
-                <animateMotion 
-                    dur="3s" 
-                    repeatCount="1"
-                    fill="freeze"
-                    path={`M${start.x} ${start.y} Q${midX} ${midY} ${end.x} ${end.y}`} 
-                    rotate="auto"
-                    keyPoints="0;1"
-                    keyTimes="0;1"
-                    calcMode="spline"
-                    keySplines="0.45 0 0.55 1" 
-                />
-                
-                <g transform="rotate(90) scale(3)">
-                    <path d="M-10 0 L-5 -30 L5 -30 L10 0 L0 10 Z" fill="white" stroke="#e2e8f0" strokeWidth="1" />
-                    <path d="M-30 -10 L0 -5 L30 -10 L0 5 Z" fill="#cbd5e1" stroke="white" />
-                    <path d="M-10 -25 L0 -35 L10 -25 Z" fill="#ef4444" />
-                    
-                    <g transform="translate(0, -10) scale(0.5) rotate(-90)">
-                        <CarAvatar character={player.character} color={player.color} />
-                    </g>
-                    
-                    <circle cx="-5" cy="-30" r="2" fill="white" opacity="0.8">
-                         <animate attributeName="cy" values="-30;-50" dur="0.5s" repeatCount="indefinite" />
-                         <animate attributeName="opacity" values="0.8;0" dur="0.5s" repeatCount="indefinite" />
-                    </circle>
-                    <circle cx="5" cy="-30" r="2" fill="white" opacity="0.8">
-                         <animate attributeName="cy" values="-30;-50" dur="0.5s" repeatCount="indefinite" begin="0.1s" />
-                         <animate attributeName="opacity" values="0.8;0" dur="0.5s" repeatCount="indefinite" begin="0.1s" />
-                    </circle>
-                </g>
-            </g>
-        </g>
-    );
-};
-
 // Isometric Graphics Helpers
 const TileBase = ({ tile, isHovered, theme }: { tile: Tile, isHovered: boolean, theme: ThemeType }) => {
     // Determine colors based on Theme and "Zone" (segment of the map)
@@ -153,11 +92,43 @@ const TileBase = ({ tile, isHovered, theme }: { tile: Tile, isHovered: boolean, 
         topColor = "#fde047"; sideColor = "#ca8a04"; // Yellow
         if (tile.zone.includes('Nap')) { topColor = "#c4b5fd"; sideColor = "#7c3aed"; } // Lavender
         if (tile.zone.includes('Art')) { topColor = "#fca5a5"; sideColor = "#ef4444"; } // Pinkish Red
+    } else if (theme === 'KITCHEN') {
+        // Kitchen Palette
+        topColor = "#e2e8f0"; sideColor = "#cbd5e1"; // White Marble/Tile
+        if (tile.zone.includes('Prep')) { topColor = "#d4d4d8"; sideColor = "#a1a1aa"; } // Steel
+        if (tile.zone.includes('Grill')) { topColor = "#27272a"; sideColor = "#18181b"; } // Cast Iron Black
+        if (tile.zone.includes('Dessert')) { topColor = "#fce7f3"; sideColor = "#fbcfe8"; } // Frosting Pink
+        if (tile.zone.includes('Sink')) { topColor = "#bae6fd"; sideColor = "#7dd3fc"; } // Water Blue
+    } else if (theme === 'BALCONY') {
+        // Balcony Palette
+        topColor = "#fb923c"; sideColor = "#c2410c"; // Terracotta Orange
+        if (tile.zone.includes('Succulent')) { topColor = "#86efac"; sideColor = "#15803d"; } // Green
+        if (tile.zone.includes('Laundry')) { topColor = "#bae6fd"; sideColor = "#0ea5e9"; } // Sky Blue
+        if (tile.zone.includes('Railing')) { topColor = "#94a3b8"; sideColor = "#475569"; } // Metal Grey
+        if (tile.zone.includes('Jungle')) { topColor = "#fcd34d"; sideColor = "#b45309"; } // Wood
+    } else if (theme === 'AMUSEMENT_PARK') {
+        // Amusement Park Palette
+        topColor = "#e11d48"; sideColor = "#9f1239"; // Carnival Red
+        if (tile.zone.includes('Carousel')) { topColor = "#fcd34d"; sideColor = "#d97706"; } // Gold/Yellow
+        if (tile.zone.includes('Food')) { topColor = "#38bdf8"; sideColor = "#0284c7"; } // Blue
+        if (tile.zone.includes('Coaster')) { topColor = "#e2e8f0"; sideColor = "#64748b"; } // Steel
+        if (tile.zone.includes('Ticket')) { topColor = "#f0fdf4"; sideColor = "#16a34a"; } // Green
+    } else if (theme === 'FAMILY') {
+        // Family Palette (Warm, Cozy, Wood)
+        topColor = "#d97706"; sideColor = "#b45309"; // Wood Floor
+        if (tile.zone.includes('Living')) { topColor = "#fde68a"; sideColor = "#d97706"; } // Cream Carpet
+        if (tile.zone.includes('Dining')) { topColor = "#78350f"; sideColor = "#451a03"; } // Dark Wood
+        if (tile.zone.includes('Bedroom')) { topColor = "#c4b5fd"; sideColor = "#7c3aed"; } // Soft Lavender
+    } else if (theme === 'MARKET') {
+        // Market Palette (Cobblestone, Earthy, Vibrant)
+        topColor = "#d4d4d8"; sideColor = "#71717a"; // Light Grey Stone
+        if (tile.zone.includes('Veggie')) { topColor = "#a7f3d0"; sideColor = "#059669"; } // Fresh Green
+        if (tile.zone.includes('Butcher')) { topColor = "#fecaca"; sideColor = "#dc2626"; } // Light Red
+        if (tile.zone.includes('Grain')) { topColor = "#fef08a"; sideColor = "#ca8a04"; } // Wheat Yellow
     }
 
     if (tile.type === TileType.STORY) { topColor = "#fff"; sideColor = "#cbd5e1"; } 
     if (tile.type === TileType.SHORTCUT) { topColor = "#d8b4fe"; sideColor = "#c084fc"; } 
-    // if (tile.type === TileType.PLANE) { topColor = "#1e293b"; sideColor = "#0f172a"; }
 
     const transform = isHovered ? "translate(0, -6)" : "translate(0, 0)";
 
@@ -165,78 +136,6 @@ const TileBase = ({ tile, isHovered, theme }: { tile: Tile, isHovered: boolean, 
     const RX = 42; 
     const RY = 25; 
     const HEIGHT = 20;
-
-    // --- ICONS BASED ON THEME ---
-    let icon = "";
-    if (tile.type === TileType.BOOST) {
-        if (theme === 'INTERSTELLAR') icon = "🚀"; 
-        else if (theme === 'CYBERPUNK') icon = "⚡"; 
-        else if (theme === 'CANDY') icon = "🍬"; 
-        else if (theme === 'OCEAN') icon = "🌊"; 
-        else if (theme === 'ARCTIC') icon = "🌌"; 
-        else if (theme === 'JUNGLE') icon = "🐆"; 
-        else if (theme === 'SOCCER') icon = "⚽"; 
-        else if (theme === 'MAGMA') icon = "🔥"; 
-        else if (theme === 'ANCIENT') icon = "🌸"; 
-        else if (theme === 'DESERT') icon = "🏎️"; 
-        else if (theme === 'HEAVEN') icon = "🌈"; 
-        else if (theme === 'PARK') icon = "✂️"; 
-        else if (theme === 'GARDEN') icon = "🥬"; 
-        else if (theme === 'KINDERGARTEN') icon = "🪢"; // Jump Rope
-        else icon = "🚀";
-    }
-    else if (tile.type === TileType.PENALTY) {
-        if (theme === 'INTERSTELLAR') icon = "☄️"; 
-        else if (theme === 'CYBERPUNK') icon = "👾"; 
-        else if (theme === 'CANDY') icon = "🍫"; 
-        else if (theme === 'OCEAN') icon = "⚓"; 
-        else if (theme === 'ARCTIC') icon = "🧊"; 
-        else if (theme === 'JUNGLE') icon = "🍃"; 
-        else if (theme === 'SOCCER') icon = "🟥"; // Red Card
-        else if (theme === 'MAGMA') icon = "🌋"; 
-        else if (theme === 'ANCIENT') icon = "🌧️"; 
-        else if (theme === 'DESERT') icon = "🌵"; 
-        else if (theme === 'HEAVEN') icon = "🌩️"; 
-        else if (theme === 'PARK') icon = "💦"; 
-        else if (theme === 'GARDEN') icon = "🐛"; 
-        else if (theme === 'KINDERGARTEN') icon = "🚩"; // Flag
-        else icon = "🍌";
-    }
-    else if (tile.type === TileType.FREEZE) {
-        if (theme === 'INTERSTELLAR') icon = "🕳️"; 
-        else if (theme === 'CYBERPUNK') icon = "⛔"; 
-        else if (theme === 'CANDY') icon = "🍭"; 
-        else if (theme === 'OCEAN') icon = "🐙"; 
-        else if (theme === 'ARCTIC') icon = "🥶"; 
-        else if (theme === 'JUNGLE') icon = "🌿"; 
-        else if (theme === 'SOCCER') icon = "🟨"; // Yellow Card
-        else if (theme === 'MAGMA') icon = "⛓️"; 
-        else if (theme === 'ANCIENT') icon = "🏮"; 
-        else if (theme === 'DESERT') icon = "🌪️"; 
-        else if (theme === 'HEAVEN') icon = "🎼"; 
-        else if (theme === 'PARK') icon = "🪑"; 
-        else if (theme === 'GARDEN') icon = "🐌"; 
-        else if (theme === 'KINDERGARTEN') icon = "⏰"; // Late
-        else icon = "💤";
-    }
-    else if (tile.type === TileType.STORY) icon = "✨";
-    else if (tile.type === TileType.SHORTCUT) {
-        if (theme === 'INTERSTELLAR') icon = "🛸";
-        else if (theme === 'CYBERPUNK') icon = "📡";
-        else if (theme === 'CANDY') icon = "🌈";
-        else if (theme === 'OCEAN') icon = "🐢";
-        else if (theme === 'ARCTIC') icon = "❄️";
-        else if (theme === 'JUNGLE') icon = "🗿"; // Statue
-        else if (theme === 'SOCCER') icon = "🏆";
-        else if (theme === 'MAGMA') icon = "🐲";
-        else if (theme === 'ANCIENT') icon = "🕊️"; // Crane
-        else if (theme === 'DESERT') icon = "🦅";
-        else if (theme === 'HEAVEN') icon = "✨";
-        else if (theme === 'PARK') icon = "🛶";
-        else if (theme === 'GARDEN') icon = "🕳️"; 
-        else if (theme === 'KINDERGARTEN') icon = "🛝"; // Slide
-        else icon = "🪜";
-    }
 
     return (
         <g className="transition-transform duration-300 ease-out" style={{ transform }}>
@@ -252,19 +151,18 @@ const TileBase = ({ tile, isHovered, theme }: { tile: Tile, isHovered: boolean, 
             {/* Inner Ring / Decor */}
             <ellipse cx="0" cy="0" rx={RX - 8} ry={RY - 6} fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
 
-            {/* Specks for Space/Ocean/Arctic */}
-            {(theme === 'INTERSTELLAR' || theme === 'OCEAN' || theme === 'ARCTIC') && tile.type === TileType.NORMAL && (
+            {/* Specks for Space/Ocean/Arctic/Kitchen/Balcony/Amusement/Family/Market */}
+            {(theme === 'INTERSTELLAR' || theme === 'OCEAN' || theme === 'ARCTIC' || theme === 'KITCHEN' || theme === 'BALCONY' || theme === 'AMUSEMENT_PARK' || theme === 'FAMILY' || theme === 'MARKET') && tile.type === TileType.NORMAL && (
                 <g opacity="0.3">
                     <circle cx="-20" cy="-10" r="1.5" fill="white" />
                     <circle cx="20" cy="5" r="1" fill="white" />
                 </g>
             )}
-
             
             {/* Icon/Text */}
             <g transform="translate(0, -3)">
                 {/* Increased fontSize from 20 to 32 and adjusted y position */}
-                {icon && <text textAnchor="middle" y="10" fontSize="32" filter="drop-shadow(0 2px 0 rgba(0,0,0,0.2))">{icon}</text>}
+                {tile.icon && <text textAnchor="middle" y="10" fontSize="32" filter="drop-shadow(0 2px 0 rgba(0,0,0,0.2))">{tile.icon}</text>}
                 
                 {tile.type === TileType.NORMAL && (
                     <text textAnchor="middle" y="5" fill="rgba(0,0,0,0.2)" fontSize="11" fontWeight="900">{tile.id}</text>
@@ -859,6 +757,386 @@ const DecorationObj: React.FC<{ deco: Decoration }> = ({ deco }) => {
         );
     }
 
+    // --- KITCHEN DECORATIONS ---
+    if (deco.type === 'PAN') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <ellipse cx="0" cy="0" rx="15" ry="5" fill={color} stroke="black" strokeWidth="1" />
+                 <path d="M15 0 L25 -5" stroke="black" strokeWidth="4" strokeLinecap="round" />
+                 <ellipse cx="0" cy="0" rx="10" ry="3" fill="#333" opacity="0.5" />
+             </g>
+        );
+    }
+    if (deco.type === 'PEPPER_MILL') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-5" y="-25" width="10" height="25" fill="#78350f" stroke="#451a03" />
+                 <circle cx="0" cy="-28" r="5" fill="#451a03" />
+                 <rect x="-2" y="-32" width="4" height="4" fill="#a8a29e" />
+             </g>
+        );
+    }
+    if (deco.type === 'HONEY_POT') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <circle cx="0" cy="-8" r="10" fill="#f59e0b" stroke="#b45309" />
+                 <rect x="-8" y="-20" width="16" height="6" fill="#fcd34d" stroke="#b45309" />
+                 <path d="M0 -15 L0 0" stroke="#fef3c7" strokeWidth="2" opacity="0.5" />
+                 <text x="0" y="-5" fontSize="8" textAnchor="middle">HONEY</text>
+             </g>
+        );
+    }
+    if (deco.type === 'OVEN') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-15" y="-30" width="30" height="30" fill="#e2e8f0" stroke="#475569" />
+                 <rect x="-10" y="-20" width="20" height="15" fill="#333" />
+                 <circle cx="-10" cy="-25" r="2" fill="#ef4444" />
+                 <circle cx="-5" cy="-25" r="2" fill="#3b82f6" />
+             </g>
+        );
+    }
+    if (deco.type === 'TOASTER') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-10 0 L-10 -15 Q-10 -20 0 -20 Q10 -20 10 -15 L10 0 Z" fill="#cbd5e1" stroke="#64748b" />
+                 <line x1="-5" y1="-20" x2="-5" y2="-10" stroke="#333" strokeWidth="2" />
+                 <line x1="5" y1="-20" x2="5" y2="-10" stroke="#333" strokeWidth="2" />
+             </g>
+        );
+    }
+    if (deco.type === 'CUTLERY') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 10}) scale(${s}) rotate(15)`}>
+                 <path d="M-5 0 L-5 -20 Q-5 -25 0 -25 Q5 -25 5 -20 L5 0" fill="#94a3b8" stroke="#475569" strokeWidth="1" />
+                 <line x1="0" y1="0" x2="0" y2="10" stroke="#475569" strokeWidth="2" />
+             </g>
+        );
+    }
+    if (deco.type === 'CHEF_HAT') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 20}) scale(${s})`}>
+                 <path d="M-10 0 L-10 -10 Q-15 -25 0 -30 Q15 -25 10 -10 L10 0 Z" fill="white" stroke="#e2e8f0" />
+                 <rect x="-10" y="0" width="20" height="5" fill="white" stroke="#e2e8f0" />
+             </g>
+        );
+    }
+    if (deco.type === 'STACK_PLATES') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <ellipse cx="0" cy="0" rx="10" ry="3" fill="white" stroke="#cbd5e1" />
+                 <ellipse cx="0" cy="-3" rx="10" ry="3" fill="white" stroke="#cbd5e1" />
+                 <ellipse cx="0" cy="-6" rx="10" ry="3" fill="white" stroke="#cbd5e1" />
+             </g>
+        );
+    }
+
+    // --- BALCONY DECORATIONS ---
+    if (deco.type === 'CACTUS_POT') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-8 -15 L-6 0 L6 0 L8 -15 Z" fill="#b45309" stroke="#78350f" />
+                 <rect x="-8" y="-45" width="6" height="30" rx="3" fill={deco.color || "#16a34a"} stroke="#14532d" />
+                 <rect x="2" y="-35" width="6" height="20" rx="3" fill={deco.color || "#16a34a"} stroke="#14532d" />
+                 <circle cx="-5" cy="-40" r="1" fill="#facc15" /> 
+             </g>
+        );
+    }
+    if (deco.type === 'CLOTHES_RACK') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <line x1="-10" y1="0" x2="-10" y2="-40" stroke="#94a3b8" strokeWidth="2" />
+                 <line x1="10" y1="0" x2="10" y2="-40" stroke="#94a3b8" strokeWidth="2" />
+                 <line x1="-15" y1="-35" x2="15" y2="-35" stroke="#94a3b8" strokeWidth="2" />
+                 <path d="M-5 -35 L-5 -20 L5 -20 L5 -35 Z" fill="#f472b6" stroke="#db2777" />
+             </g>
+        );
+    }
+    if (deco.type === 'WIND_CHIME') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 40}) scale(${s})`}>
+                 <line x1="0" y1="0" x2="0" y2="-20" stroke="#94a3b8" />
+                 <line x1="-10" y1="0" x2="10" y2="0" stroke="#94a3b8" />
+                 <rect x="-8" y="0" width="2" height="15" fill="#facc15" />
+                 <rect x="-3" y="0" width="2" height="12" fill="#facc15" />
+                 <rect x="2" y="0" width="2" height="18" fill="#facc15" />
+                 <rect x="7" y="0" width="2" height="14" fill="#facc15" />
+             </g>
+        );
+    }
+    if (deco.type === 'WATERING_CAN') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-10 -15 L-10 0 L5 0 L5 -15 Z" fill={deco.color || "#22c55e"} stroke="#14532d" />
+                 <path d="M5 -10 L15 -15" stroke="#14532d" strokeWidth="2" />
+                 <path d="M-10 -5 Q-15 -10 -10 -15" stroke="#14532d" strokeWidth="2" fill="none" />
+             </g>
+        );
+    }
+    if (deco.type === 'SUCCULENT') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-6 -5 L-4 0 L4 0 L6 -5 Z" fill="#fff7ed" stroke="#fdba74" />
+                 <circle cx="0" cy="-8" r="6" fill={deco.color || "#86efac"} stroke="#16a34a" />
+                 <circle cx="0" cy="-8" r="3" fill="#dcfce7" />
+             </g>
+        );
+    }
+    if (deco.type === 'PIGEON') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-5 0 Q0 -5 5 0" stroke="#94a3b8" fill="#cbd5e1" />
+                 <circle cx="3" cy="-3" r="2" fill="#94a3b8" />
+                 <circle cx="4" cy="-3" r="0.5" fill="black" />
+             </g>
+        );
+    }
+    if (deco.type === 'HAMMOCK') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <line x1="-15" y1="0" x2="-15" y2="-15" stroke="#78350f" strokeWidth="2" />
+                 <line x1="15" y1="0" x2="15" y2="-15" stroke="#78350f" strokeWidth="2" />
+                 <path d="M-15 -10 Q0 5 15 -10" stroke="#fcd34d" strokeWidth="4" strokeLinecap="round" fill="none" />
+             </g>
+        );
+    }
+    if (deco.type === 'PAPER_PLANE') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 20}) scale(${s})`}>
+                 <path d="M0 0 L-10 -5 L0 -15 L5 -5 Z" fill="white" stroke="#cbd5e1" />
+                 <animateTransform attributeName="transform" type="translate" values="0,0; 0,-10; 0,0" dur="3s" repeatCount="indefinite" />
+             </g>
+        );
+    }
+
+    // --- AMUSEMENT PARK DECORATIONS ---
+    if (deco.type === 'POPCORN') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-8 0 L-10 -20 L10 -20 L8 0 Z" fill="white" stroke="#e11d48" strokeWidth="1" />
+                 <line x1="0" y1="0" x2="0" y2="-20" stroke="#e11d48" strokeWidth="3" />
+                 <line x1="-5" y1="0" x2="-6" y2="-20" stroke="#e11d48" strokeWidth="3" />
+                 <line x1="5" y1="0" x2="6" y2="-20" stroke="#e11d48" strokeWidth="3" />
+                 <circle cx="-5" cy="-22" r="3" fill="#facc15" />
+                 <circle cx="0" cy="-25" r="4" fill="#facc15" />
+                 <circle cx="5" cy="-22" r="3" fill="#facc15" />
+             </g>
+        );
+    }
+    if (deco.type === 'BALLOONS') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 30}) scale(${s})`}>
+                 <line x1="0" y1="0" x2="-5" y2="-20" stroke="white" strokeWidth="1" />
+                 <line x1="0" y1="0" x2="5" y2="-20" stroke="white" strokeWidth="1" />
+                 <line x1="0" y1="0" x2="0" y2="-25" stroke="white" strokeWidth="1" />
+                 <ellipse cx="-5" cy="-25" rx="5" ry="6" fill="#ef4444" opacity="0.9" />
+                 <ellipse cx="5" cy="-25" rx="5" ry="6" fill="#3b82f6" opacity="0.9" />
+                 <ellipse cx="0" cy="-30" rx="5" ry="6" fill="#eab308" opacity="0.9" />
+             </g>
+        );
+    }
+    if (deco.type === 'BUMPER_CAR') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-10 0 Q0 5 10 0 L10 -5 Q0 0 -10 -5 Z" fill="#1f2937" />
+                 <path d="M-8 -5 L-8 -12 Q0 -15 8 -12 L8 -5" fill="#ec4899" />
+                 <line x1="0" y1="-12" x2="0" y2="-25" stroke="#1f2937" strokeWidth="1" />
+                 <rect x="-2" y="-25" width="4" height="2" fill="black" />
+             </g>
+        );
+    }
+    if (deco.type === 'CIRCUS_TENT') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-20 0 L-20 -20 L0 -35 L20 -20 L20 0 Z" fill="#fca5a5" />
+                 <path d="M-20 -20 L0 -35 L20 -20" fill="none" stroke="#dc2626" strokeWidth="1" />
+                 <path d="M0 -35 L-10 -20 M0 -35 L10 -20 M0 -35 L0 -20" stroke="#dc2626" strokeWidth="2" />
+                 <rect x="-2" y="-38" width="4" height="4" fill="#facc15" />
+                 <path d="M-5 0 L-5 -15 Q0 -20 5 -15 L5 0" fill="#7f1d1d" opacity="0.5" />
+             </g>
+        );
+    }
+    if (deco.type === 'COASTER_TRACK') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 20}) scale(${s})`}>
+                 <path d="M-20 20 Q0 -40 20 20" stroke="#94a3b8" strokeWidth="4" fill="none" />
+                 <path d="M-20 20 Q0 -40 20 20" stroke="#e2e8f0" strokeWidth="2" fill="none" strokeDasharray="4 4" />
+                 <rect x="-5" y="-12" width="10" height="6" fill="#ef4444" transform="rotate(10)" />
+             </g>
+        );
+    }
+    if (deco.type === 'CAROUSEL') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <ellipse cx="0" cy="0" rx="20" ry="10" fill="#fcd34d" stroke="#b45309" strokeWidth="2" />
+                 <rect x="-2" y="-20" width="4" height="20" fill="#b45309" />
+                 <path d="M-20 -20 L0 -35 L20 -20 Z" fill="#ef4444" />
+                 <line x1="-10" y1="-20" x2="-10" y2="0" stroke="#b45309" strokeWidth="1" />
+                 <line x1="10" y1="-20" x2="10" y2="0" stroke="#b45309" strokeWidth="1" />
+             </g>
+        );
+    }
+    if (deco.type === 'FERRIS_WHEEL') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 30}) scale(${s})`}>
+                 <circle cx="0" cy="-20" r="25" fill="none" stroke="#e2e8f0" strokeWidth="2" />
+                 <circle cx="0" cy="-20" r="5" fill="#facc15" />
+                 <line x1="0" y1="-20" x2="0" y2="-45" stroke="#e2e8f0" strokeWidth="1" />
+                 <line x1="0" y1="-20" x2="25" y2="-20" stroke="#e2e8f0" strokeWidth="1" />
+                 <line x1="0" y1="-20" x2="-25" y2="-20" stroke="#e2e8f0" strokeWidth="1" />
+                 <line x1="0" y1="-20" x2="0" y2="5" stroke="#e2e8f0" strokeWidth="1" />
+                 <path d="M-10 10 L0 -20 L10 10" stroke="#94a3b8" strokeWidth="2" fill="none" />
+             </g>
+        );
+    }
+
+    // --- FAMILY DECORATIONS ---
+    if (deco.type === 'TELEVISION') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 15}) scale(${s})`}>
+                 <rect x="-15" y="-15" width="30" height="20" rx="2" fill="#111" stroke="#333" />
+                 <rect x="-12" y="-12" width="24" height="14" fill="#38bdf8" opacity="0.3">
+                     <animate attributeName="opacity" values="0.3;0.6;0.3" dur="2s" repeatCount="indefinite" />
+                 </rect>
+                 <line x1="-10" y1="5" x2="-12" y2="10" stroke="#333" strokeWidth="2" />
+                 <line x1="10" y1="5" x2="12" y2="10" stroke="#333" strokeWidth="2" />
+             </g>
+        );
+    }
+    if (deco.type === 'SOFA') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-20 -10 L20 -10 L20 -25 L-20 -25 Z" fill={color} stroke="#7f1d1d" />
+                 <rect x="-20" y="-10" width="40" height="10" fill={color} stroke="#7f1d1d" />
+                 <rect x="-20" y="-15" width="8" height="15" fill="#7f1d1d" opacity="0.2" /> {/* Armrest Left */}
+                 <rect x="12" y="-15" width="8" height="15" fill="#7f1d1d" opacity="0.2" /> {/* Armrest Right */}
+             </g>
+        );
+    }
+    if (deco.type === 'RUG') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <ellipse cx="0" cy="0" rx="20" ry="10" fill={color} opacity="0.8" />
+                 <ellipse cx="0" cy="0" rx="18" ry="8" fill="none" stroke="white" strokeWidth="1" strokeDasharray="3 3" />
+             </g>
+        );
+    }
+    if (deco.type === 'CHAIR') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-8" y="-15" width="16" height="15" fill="#a8a29e" />
+                 <rect x="-8" y="-25" width="16" height="10" fill="#d6d3d1" />
+                 <line x1="-6" y1="0" x2="-6" y2="5" stroke="#78350f" strokeWidth="2" />
+                 <line x1="6" y1="0" x2="6" y2="5" stroke="#78350f" strokeWidth="2" />
+             </g>
+        );
+    }
+    if (deco.type === 'TEA_TRAY') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <ellipse cx="0" cy="0" rx="12" ry="6" fill="#b45309" stroke="#78350f" />
+                 <circle cx="-5" cy="-2" r="3" fill="white" />
+                 <circle cx="5" cy="-2" r="3" fill="white" />
+                 <path d="M-5 -5 Q-3 -10 0 -8" stroke="#ccc" fill="none" opacity="0.5" />
+             </g>
+        );
+    }
+    if (deco.type === 'LAMP') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <line x1="0" y1="0" x2="0" y2="-20" stroke="#78350f" strokeWidth="2" />
+                 <path d="M-8 -20 L8 -20 L5 -30 L-5 -30 Z" fill="#fde047" opacity="0.8" />
+                 <ellipse cx="0" cy="0" rx="5" ry="3" fill="#78350f" />
+             </g>
+        );
+    }
+    if (deco.type === 'BOOKSHELF') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-10" y="-25" width="20" height="25" fill="#78350f" stroke="#451a03" />
+                 <line x1="-10" y1="-8" x2="10" y2="-8" stroke="#451a03" />
+                 <line x1="-10" y1="-16" x2="10" y2="-16" stroke="#451a03" />
+                 {/* Books */}
+                 <rect x="-8" y="-15" width="3" height="7" fill="#ef4444" />
+                 <rect x="-4" y="-15" width="3" height="7" fill="#3b82f6" />
+                 <rect x="0" y="-15" width="3" height="7" fill="#22c55e" />
+             </g>
+        );
+    }
+
+    // --- MARKET DECORATIONS ---
+    if (deco.type === 'VEGETABLES') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-10 0 Q0 5 10 0" stroke="#854d0e" strokeWidth="1" fill="none" />
+                 <circle cx="-5" cy="-5" r="4" fill="#22c55e" /> {/* Cabbage */}
+                 <path d="M5 -5 L8 -12 L2 -12 Z" fill="#f97316" /> {/* Carrots */}
+                 <circle cx="0" cy="-2" r="3" fill="#ef4444" /> {/* Tomato */}
+             </g>
+        );
+    }
+    if (deco.type === 'MEAT') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <ellipse cx="0" cy="-5" rx="8" ry="5" fill="#fca5a5" stroke="#ef4444" transform="rotate(-15)" />
+                 <circle cx="0" cy="-5" r="2" fill="#fff" opacity="0.5" /> {/* Bone */}
+             </g>
+        );
+    }
+    if (deco.type === 'CORN') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 10}) scale(${s})`}>
+                 <ellipse cx="0" cy="0" rx="4" ry="10" fill="#facc15" stroke="#eab308" />
+                 <path d="M-4 5 Q0 10 4 5" stroke="#16a34a" fill="none" strokeWidth="2" />
+             </g>
+        );
+    }
+    if (deco.type === 'POTATO') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <ellipse cx="-5" cy="0" rx="5" ry="3" fill="#d4a373" />
+                 <ellipse cx="5" cy="-2" rx="4" ry="3" fill="#d4a373" />
+                 <circle cx="-6" cy="-1" r="0.5" fill="#854d0e" />
+             </g>
+        );
+    }
+    if (deco.type === 'STALL') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <rect x="-15" y="-30" width="30" height="30" fill="#fcd34d" stroke="#b45309" /> {/* Counter */}
+                 <path d="M-18 -30 L18 -30 L15 -45 L-15 -45 Z" fill="#ef4444" /> {/* Roof Red */}
+                 <path d="M-8 -30 L-5 -45 L5 -45 L8 -30" fill="#fff" opacity="0.3" /> {/* Stripes */}
+             </g>
+        );
+    }
+    if (deco.type === 'BASKET') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y}) scale(${s})`}>
+                 <path d="M-8 -10 L-6 0 L6 0 L8 -10 Z" fill="#d4a373" stroke="#a16207" />
+                 <path d="M-8 -10 Q0 -20 8 -10" stroke="#a16207" fill="none" />
+             </g>
+        );
+    }
+    if (deco.type === 'SCALE') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 10}) scale(${s})`}>
+                 <rect x="-5" y="0" width="10" height="10" fill="#9ca3af" />
+                 <circle cx="0" cy="-5" r="6" fill="#fff" stroke="#4b5563" />
+                 <line x1="0" y1="-5" x2="3" y2="-2" stroke="#ef4444" />
+                 <path d="M-8 -8 L0 -5 L8 -8" stroke="#4b5563" fill="none" />
+             </g>
+        );
+    }
+    if (deco.type === 'SIGN') {
+        return (
+             <g transform={`translate(${deco.x}, ${deco.y - 10}) scale(${s})`}>
+                 <rect x="-8" y="-20" width="16" height="10" fill="#fef3c7" stroke="#b45309" />
+                 <line x1="0" y1="-10" x2="0" y2="0" stroke="#b45309" strokeWidth="2" />
+                 <text x="0" y="-14" fontSize="6" textAnchor="middle" fill="#b45309" fontWeight="bold">SALE</text>
+             </g>
+        );
+    }
+
     if (deco.type === 'STAR') {
         return (
              <g transform={`translate(${deco.x}, ${deco.y - 60}) scale(${s})`} className="animate-pulse">
@@ -900,6 +1178,11 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
           case 'PARK': return 'linear-gradient(to bottom, #f0fdf4, #bbf7d0, #86efac)'; // Fresh Green
           case 'GARDEN': return 'linear-gradient(to bottom, #fefce8, #d9f99d, #65a30d)'; // Sunny Garden
           case 'KINDERGARTEN': return 'linear-gradient(to bottom, #fff7ed, #fde68a, #fcd34d)'; // Warm Yellow
+          case 'KITCHEN': return 'linear-gradient(to bottom, #ffedd5, #fdba74, #fb923c)'; // Warm Orange Kitchen
+          case 'BALCONY': return 'linear-gradient(to bottom, #bae6fd, #e0f2fe, #fff7ed)'; // Sunny Sky to Warm Terrace
+          case 'AMUSEMENT_PARK': return 'radial-gradient(circle at 50% 30%, #e0f2fe 0%, #1e40af 100%)'; // Night Sky with bright lights
+          case 'FAMILY': return 'linear-gradient(to bottom, #fff7ed, #ffedd5, #fdba74)'; // Warm Beige/Orange
+          case 'MARKET': return 'linear-gradient(to bottom, #fef3c7, #fde68a, #d97706)'; // Busy Yellow/Orange
           default: return 'radial-gradient(circle at 50% 50%, #bae6fd 0%, #7dd3fc 100%)';
       }
   }
@@ -942,6 +1225,9 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
   const offsetX = -minX + 400;
   const offsetY = -minY + 400;
 
+  // Helper to find active player
+  const activePlayer = players.find(p => p.id === activePlayerId);
+
   // Auto-center on active player
   useEffect(() => {
     if (scrollContainerRef.current && !isDragging) {
@@ -957,7 +1243,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
             targetY = (start.y + end.y) / 2;
             hasTarget = true;
         } else {
-            const activePlayer = players.find(p => p.id === activePlayerId);
+            // Use activePlayer reference from outer scope
             if (activePlayer) {
                 const t = tiles[activePlayer.position];
                 if (t) {
@@ -981,7 +1267,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
             if (isInitialMount.current) isInitialMount.current = false;
         }
     }
-  }, [activePlayerId, zoom, flyingAnimation]); 
+  }, [activePlayerId, zoom, flyingAnimation, activePlayer?.position]); // Added activePlayer.position to dependencies
 
   const handleWheel = (e: React.WheelEvent) => {
     e.preventDefault();
@@ -1092,16 +1378,6 @@ export const GameBoard: React.FC<GameBoardProps> = ({ tiles, players, activePlay
                                 );
                             })}
                             
-                            {/* Flight Overlay */}
-                            {flyingAnimation && (
-                                <FlightOverlay 
-                                    start={tiles[flyingAnimation.startTileId]} 
-                                    end={tiles[flyingAnimation.endTileId]}
-                                    players={players}
-                                    playerId={flyingAnimation.playerId}
-                                />
-                            )}
-
                             {renderList.map((item) => {
                                 if (item.type === 'TILE') {
                                     const t = item.obj as Tile;
